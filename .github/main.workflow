@@ -1,10 +1,10 @@
 workflow "publish on release" {
-  on = "push"
   resolves = ["publish"]
+  on = "release"
 }
 
 action "publish" {
   uses = "actions/npm@master"
   args = "publish"
-  secrets = ["npm_token"]
+  secrets = ["NPM_AUTH_TOKEN"]
 }
