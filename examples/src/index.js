@@ -18,5 +18,7 @@ render($('#render-target'), el.div(
     el.p("Hello!"),
     el.button("Click me!").on('click', () => alert("Hi there!")),
     el.hr(),
-    el.article().withArray(lorem)
+    el.article().bind(lorem).forEach(
+        el.p((data) => data)
+    )
 ));
