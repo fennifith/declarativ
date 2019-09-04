@@ -2,7 +2,7 @@
   "name": "declarativ",
   "version": "0.0.1",
   "description": "This is definitely not JSX.",
-  "main": "src/index.js",
+  "main": "dist/declarativ.js",
   "scripts": {
     "test": "mocha"
   },
