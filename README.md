@@ -17,7 +17,7 @@ container(
 #### Script Tag
 
 ```html
-<script type="text/javascript" src="..."></script>
+<script type="text/javascript" src="https://unpkg.com/declarativ@0.0.1/declarativ.min.js"></script>
 ```
 
 #### NPM/Webpack
@@ -30,7 +30,7 @@ npm install declarativ
 
 ```sh
 git clone https://github.com/fennifith/declarativ.git
-cd declarativ && make install
+cd declarativ/lib && make install
 ```
 
 ## Usage

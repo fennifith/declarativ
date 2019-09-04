@@ -1,6 +1,6 @@
 .PHONY: all install build test
 
-all: test
+all: test build
 
 install: package-install.lock
 
