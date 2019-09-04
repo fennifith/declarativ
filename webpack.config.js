@@ -5,9 +5,15 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: 'declarativ.js',
-        library: 'declarativ'
+        library: 'declarativ',
+        libraryTarget: 'umd'
     },
     externals: {
-        jquery: 'jQuery'
+        jquery: {
+            commonjs: 'jquery',
+            commonjs2: 'jquery',
+            amd: 'jquery',
+            root: 'jQuery'
+        }
     }
 };

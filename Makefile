@@ -1,4 +1,4 @@
-.PHONY: all install build test
+.PHONY: all install build test serve
 
 all: test build
 
@@ -13,3 +13,7 @@ build: install
 
 test: install
 	npm test
+
+serve: install build
+	open http://localhost:8080/examples/basic.html
+	http-server

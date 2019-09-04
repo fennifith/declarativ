@@ -17,8 +17,10 @@ container(
 #### Script Tag
 
 ```html
-<script type="text/javascript" src="https://unpkg.com/declarativ@0.0.1/declarativ.min.js"></script>
+<script type="text/javascript" src="https://unpkg.com/declarativ@0.0.1/dist/declarativ.js"></script>
 ```
+
+(the module will be included in the global scope as the `declarativ` variable)
 
 #### NPM/Webpack
 
@@ -30,13 +32,34 @@ npm install declarativ
 
 ```sh
 git clone https://github.com/fennifith/declarativ.git
-cd declarativ/lib && make install
+cd declarativ && make install
 ```
 
 ## Usage
 
-Coming soon...
+Most component trees can be built using the standard functions defined in `declarativ.elements`. I often shorten this to `el` when using more than one or two of them, which makes it a bit easier to work with. Here's an example:
 
-## Templates
+```js
+const el = declarativ.elements;
+
+let components = el.div(
+  el.h1("This is a big header."),
+  el.p(
+    "Here, have a bit of text",
+    el.a("and a link").attr("href", "https://example.com/"),
+    "."
+  )
+);
+```
+
+After defining your component tree, it can be placed on the DOM by either calling the `render` or `renderElement` functions. Calling `render` simply returns the rendered jQuery element, but `renderElement` accepts a second "element" argument which the rendered content will be placed inside.
+
+```js
+declarativ.renderElement($("#content"), components).then(() => {
+    console.log("Elements rendered!");
+});
+```
+
+### Templates
 
 Coming soon...

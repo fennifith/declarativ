@@ -143,10 +143,11 @@ class Component {
                 await addChild(await child.resolve(data));
             else if (child instanceof Promise)
                 await addChild(await child);
-            else if (typeof child === "string" || child instanceof Component)
+            else if (child instanceof Array) {
+                for (let i in Object.values(child))
+                    await addChild(child[i]);
+            } else if (typeof child === "string" || child instanceof Component)
                 children.push(child);
-            else if (child instanceof Array)
-                await Promise.all(Object.values(child).map((c) => addChild(c)));
             else console.error("compose: Cannot handle non-component child; ", child);
         };
 
@@ -166,7 +167,7 @@ class Component {
      */
     async render(parentData, tempElement) {
         // resolve critical data first
-        console.log(this);
+        //console.log(this);
         let data = await this.data.resolve(parentData);
 
         // create basic html
@@ -190,7 +191,7 @@ class Component {
             tempElement.remove();
         }
 
-        console.log(element);
+        //console.log(element);
 
         // render / await child nodes
         await Promise.all(Object.keys(components).map(function(id) {

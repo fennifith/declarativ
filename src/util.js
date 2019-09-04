@@ -15,12 +15,11 @@ class DataResolvable {
     }
 
     async resolve(data) {
+        // TODO: ideally, Promises/functions should resolve recursively (e.g. Promises that return a function), but this breaks the Component's forEach functionality
         if (this.value instanceof Promise) {
-            this.value = await this.value;
-            return await this.resolve(data);
+            return await this.value;
         } else if (typeof this.value === 'function') {
-            this.value = this.value(data);
-            return await this.resolve(data);
+            return this.value(data);
         } else return this.value;
     }
 }
