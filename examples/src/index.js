@@ -1,6 +1,6 @@
 const $ = require('jquery');
-const el = require('../../lib/elements.js');
-const { renderElement: render } = require('../../lib/index.js');
+const { renderElement: render, elements: el } = require('../../lib/index.js');
+const templates = require('./templates.js');
 
 console.log("Hi!");
 
@@ -20,5 +20,7 @@ render($('#render-target'), el.div(
     el.hr(),
     el.article().bind(lorem).forEach(
         el.p((data) => data)
-    )
+    ),
+    templates.details("This is a bunch of fun templated content.").bind({ text: "Content content, templated content" }),
+    templates.describedItem("This is another type of templated content.", "It works a little bit differently - as a function call, instead of a composed element. Most of the time, this method is easier to work with.")
 ));
