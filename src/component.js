@@ -36,7 +36,28 @@ class Node {
     }
 
     isBlocking() {
-        return false;
+        for (let i in Object.values(this.children)) {
+            if (this.children[i].isBlocking())
+                return true;
+        }
+
+        return this.data.isBlocking();
+    }
+
+    /**
+     * Iterate over a set of children for all data items passed.
+     *
+     * @param {Array<Component>} children
+     * @returns {Component}
+     */
+    forEach(...children) {
+        return this.withChildren(function(data) { // set children to a function of the passed data
+            return Object.values(data).map((item) => children.map(function(child) { // for each item, return all of the passed elements
+                if (child instanceof Component)
+                    return child.bind(item); // if the child is a component, bind its data directly
+                else return new DataResolvable(child).resolve(item); // if the child is another function/promise, resolve it as usual
+            }))
+        });
     }
 
     /**
@@ -51,7 +72,7 @@ class Node {
             let child = await resolvable.resolve(data);
 
             if (child instanceof Array) { // flatten inner arrays
-                await Promise.all(Object.values(child).map(addChild));
+                await Promise.all(Object.values(child).map((c) => addChild(new DataResolvable(c))));
             } else children.push(resolveNode(child));
         };
 
@@ -74,6 +95,10 @@ class TextNode extends Node {
     constructor(text) {
         super();
         this.text = text;
+    }
+
+    isBlocking() {
+        return false;
     }
 
     async renderString(parentData) {
@@ -119,26 +144,6 @@ class Component extends Node {
         return node;
     }
 
-    /**
-     * Iterate over a set of children for all data items passed.
-     *
-     * @param {Array<Component>} children
-     * @returns {Component}
-     */
-    forEach(...children) {
-        return this.withChildren(function(data) { // set children to a function of the passed data
-            return Object.values(data).map((item) => children.map(function(child) { // for each item, return all of the passed elements
-                if (child instanceof Component)
-                    return child.bind(item); // if the child is a component, bind its data directly
-                else return new DataResolvable(child).resolve(item); // if the child is another function/promise, resolve it as usual
-            }))
-        });
-    }
-
-    isBlocking() {
-        return true;
-    }
-
     async renderString(parentData) {
         // resolve critical data first
         let data = await this.data.resolve(parentData);
@@ -174,6 +179,8 @@ class Component extends Node {
                 components[id] = child;
             } else innerHtml += await child.renderString(parentData);
         });
+
+        console.log(innerHtml);
 
         // render HTML structure
         let element = $(this.template(innerHtml, data));
