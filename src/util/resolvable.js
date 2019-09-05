@@ -1,4 +1,8 @@
-
+/**
+ * Useful data-handling classes and functions.
+ *
+ * @module util/resolvable
+ */
 
 /**
  * A wrapper class for data-based promises and/or arbitrary
@@ -69,13 +73,4 @@ async function forEachAsync(iterable, fun) {
         await fun(iterable[i], i);
 }
 
-function escapeHtml(str) {
-    return str
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
-module.exports = { DataResolvable, PendingTasks, forEachAsync, escapeHtml };
+module.exports = { DataResolvable, PendingTasks, forEachAsync };

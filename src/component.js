@@ -1,4 +1,5 @@
-const { DataResolvable, PendingTasks, forEachAsync, escapeHtml } = require('./util/util.js');
+const { DataResolvable, PendingTasks, forEachAsync } = require('./util/resolvable.js');
+const { escapeHtml } = require('./util/html.js');
 const dom = require('./util/dom-wrapper.js');
 
 function resolveNode(variable) {
