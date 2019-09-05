@@ -41,7 +41,7 @@
             $("#render-target"),
             el.div(
                 el.p("Hello!"),
-                el.button("Click me!").on('click', () => alert("Hi there!")),       // set event listeners (this is literally just passed to jQuery)
+                el.button("Click me!"),       // set event listeners (this is literally just passed to jQuery)
                 el.hr(),
                 el.article().bind(lorem).forEach(                                   // data can be bound to a Promised value - the branch waits for it to resolve before rendering
                     el.p((data) => data)                                            // elements can be repeated for each item in a bound iterable (the array of lorem ipsum paragraphs)

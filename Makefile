@@ -15,5 +15,4 @@ test: install
 	npm test
 
 serve: install build
-	open http://localhost:8080/examples/basic.html
 	http-server

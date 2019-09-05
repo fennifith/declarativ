@@ -16,7 +16,7 @@ const { Component } = require('./component.js');
  */
 function wrapCompose(component) {
     return function(...children) {
-        return component.withArray(children);
+        return component.withChildrenArray(children);
     };
 }
 

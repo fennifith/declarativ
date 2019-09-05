@@ -14,6 +14,10 @@ class DataResolvable {
         else this.value = value;
     }
 
+    isBlocking() {
+        return this.value instanceof Promise;
+    }
+
     async resolve(data) {
         // TODO: ideally, Promises/functions should resolve recursively (e.g. Promises that return a function), but this breaks the Component's forEach functionality
         if (this.value instanceof Promise) {
@@ -44,11 +48,28 @@ class PendingTasks {
         return this;
     }
 
-    call(...args) {
-        this.tasks.forEach((fun) => {
-            fun.apply(null, args);
-        });
+    async call(...args) {
+        return Promise.all(
+            this.tasks.map(function(fun) {
+                let ret = fun.apply(null, args);
+                return ret instanceof Promise ? ret : Promise.resolve();
+            })
+        );
     }
 }
 
-module.exports = { DataResolvable, PendingTasks };
+async function forEachAsync(iterable, fun) {
+    for (let i in Object.values(iterable))
+        await fun(iterable[i], i);
+}
+
+function escapeHtml(str) {
+    return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+module.exports = { DataResolvable, PendingTasks, forEachAsync, escapeHtml };
