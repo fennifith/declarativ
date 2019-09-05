@@ -65,7 +65,7 @@ class ElementImpl {
     /**
      * Clear all child nodes from the element.
      */
-    clear() {
+    empty() {
         throw "No clear implementation"
     }
 }
@@ -104,7 +104,7 @@ class HTMLElementImpl extends ElementImpl {
         this.element.appendChild(child);
     }
 
-    clear() {
+    empty() {
         while (this.element.firstChild)
             this.element.removeChild(this.element.firstChild);
     }
@@ -142,8 +142,8 @@ class JQueryElementImpl extends ElementImpl {
         this.element.append($(child));
     }
 
-    clear() {
-        this.element.clear();
+    empty() {
+        this.element.empty();
     }
 }
 

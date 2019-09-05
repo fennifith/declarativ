@@ -52,7 +52,7 @@ async function render(component, tempElement) {
 async function renderElement(element, component) {
     let template = dom.createHtml(`<template></template>`);
     element = dom.element(element);
-    element.clear();
+    element.empty();
     element.appendChild(template);
 
     return render(component, template);
