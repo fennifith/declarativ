@@ -5,7 +5,7 @@
  * @module compose/index
  */
 
-const $ = require('jquery');
+const dom = require('./dom/dom-wrapper.js');
 const { Component } = require('./component.js');
 
 /**
@@ -50,9 +50,10 @@ async function render(component, tempElement) {
  * @returns {Promise}                               arbitrary promise resolved upon completion
  */
 async function renderElement(element, component) {
-    let template = $(`<template></template>`);
-    element.empty();
-    element.append(template);
+    let template = dom.createHtml(`<template></template>`);
+    element = dom.element(element);
+    element.clear();
+    element.appendChild(template);
 
     return render(component, template);
 }

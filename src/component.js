@@ -1,5 +1,5 @@
-const $ = require('jquery');
 const { DataResolvable, PendingTasks, forEachAsync, escapeHtml } = require('./util.js');
+const dom = require('./dom/dom-wrapper.js');
 
 function resolveNode(variable) {
     if (variable instanceof Node)
@@ -101,11 +101,9 @@ class TextNode extends Node {
     }
 
     async render(parentData, tempElement) {
-        let element = $(document.createTextNode(this.text));
-        if (tempElement) {
-            element.insertBefore(tempElement);
-            tempElement.remove();
-        }
+        let element = dom.createText(this.text);
+        if (tempElement)
+            dom.element(tempElement).replaceWith(element);
 
         return element;
     }
@@ -175,19 +173,16 @@ class Component extends Node {
             } else innerHtml += await child.renderString(parentData);
         });
 
-        console.log(innerHtml);
-
         // render HTML structure
-        let element = $(this.template(innerHtml, data));
+        let element = dom.createHtml(this.template(innerHtml, data));
+        let elementImpl = dom.element(element);
         await this.tasks.call(element, data);
-        if (tempElement) {
-            element.insertBefore(tempElement);
-            tempElement.remove();
-        }
+        if (tempElement)
+            dom.element(tempElement).replaceWith(element);
 
         // render / await child nodes
         await Promise.all(Object.keys(components).map(function(id) {
-            let temp = element.find(`template#${id}`);
+            let temp = elementImpl.find(`template#${id}`);
             return components[id].render(data, temp);
         }));
 
