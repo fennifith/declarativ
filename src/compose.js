@@ -5,7 +5,7 @@
  * @module compose/index
  */
 
-const dom = require('./dom/dom-wrapper.js');
+const dom = require('./util/dom-wrapper.js');
 const { Component } = require('./component.js');
 
 /**

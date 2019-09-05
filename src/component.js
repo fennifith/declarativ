@@ -1,5 +1,5 @@
-const { DataResolvable, PendingTasks, forEachAsync, escapeHtml } = require('./util.js');
-const dom = require('./dom/dom-wrapper.js');
+const { DataResolvable, PendingTasks, forEachAsync, escapeHtml } = require('./util/util.js');
+const dom = require('./util/dom-wrapper.js');
 
 function resolveNode(variable) {
     if (variable instanceof Node)

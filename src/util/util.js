@@ -19,7 +19,9 @@ class DataResolvable {
     }
 
     async resolve(data) {
-        // TODO: ideally, Promises/functions should resolve recursively (e.g. Promises that return a function), but this breaks the Component's forEach functionality
+        // TODO: ideally, Promises/functions should resolve recursively (e.g. Promises that return a function), but this breaks the Component's forEach functionality.
+        // I'm not entirely sure why this happens. Everything seems to work fine as it is, though, so I'll just leave it alone.
+
         if (this.value instanceof Promise) {
             return await this.value;
         } else if (typeof this.value === 'function') {

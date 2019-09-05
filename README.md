@@ -14,10 +14,12 @@ container(
 
 ## Installation
 
+**Note:** although this library can and does use it, it _does not_ depend on jQuery. It will behave the same regardless of whether it is passed an unwrapped HTMLElement or a jQuery class. This is because of _perplexed kittens_ and [_fairy dust_](./src/util/dom-wrapper.js).
+
 #### Script Tag
 
 ```html
-<script type="text/javascript" src="https://unpkg.com/declarativ@0.0.3/dist/declarativ.js"></script>
+<script type="text/javascript" src="https://unpkg.com/declarativ@0.0.4/dist/declarativ.js"></script>
 ```
 
 (the module will be included in the global scope as the `declarativ` variable)
@@ -98,8 +100,49 @@ el.div(
 )
 ```
 
-Okay, a lot is happening here. I'll slow down and explain. The `bind` function allows you to specify a set of data to be passed to other parts of a component - and extends upon the types of nodes that can be placed inside it. Because the paragraph elements inside the div are not bound to any data, they inherit the Promise that is bound to their parent. The nodes inside of the paragraph elements are then specified as a function of the resolved data, returning the text to render.
+Okay, a lot is happening here. I'll slow down and explain.
+
+The `bind` function allows you to specify a set of data to be passed to other parts of a component - and extends upon the types of nodes that can be placed inside it. Because the paragraph elements inside the div are not bound to any data, they inherit the Promise that is bound to their parent. The nodes inside of the paragraph elements are then specified as a function of the resolved data, returning the text to render.
+
+A more complex data binding situation based off the GitHub API can be found in [examples/binding.html](./examples/binding.html).
 
 ### Templates
 
-Coming soon...
+Templating functionality is crucial for projects that involve a large number of elements or repeat a common set of element structures in multiple places. There are a few different ways to create them:
+
+#### Functions
+
+The easiest is to just create a function that returns another component, like so:
+
+```js
+function myComponent(title, description) {
+  return el.div(
+    el.h3(title),
+    el.p(description)
+  );
+}
+```
+
+Because you're just passing the arguments directly into the structure, this allows you to pass your function a string, another component, a function(data), or a Promise, and have it resolve during the render.
+
+#### Wrapped Components
+
+If you want to make a component that just slightly extends upon an existing instance of one, it can be wrapped in a function that will act like other components during use. This isn't useful very often, as any child components will be lost in the process, but it is useful if you just want to add a class name or attribute to a component without defining a structure.
+
+```js
+const myComponent = declarativ.wrapCompose(
+  el.div().className("fancypants")
+);
+``` 
+
+#### Custom Elements
+
+This is possibly the least useful kind of template, but I'll leave it here anyway. Most elements are specified inside `declarativ.elements`, but in the event that you want to use one that isn't, you can create an element template by calling `declarativ.compose()` with a template function.
+
+By "template function", it must be a function that accepts a string and returns that string inside of the element's HTML tag. For example, here I implement the deprecated `<center>` tag.
+
+```js
+const myComponent = declarativ.compose((inner) => `<center>${inner}</center>`);
+```
+
+Working examples of all of these templates can be found in [examples/templates.html](./examples/templates.html). 

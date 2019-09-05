@@ -1,6 +1,6 @@
 {
   "name": "declarativ",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "This is definitely not JSX.",
   "main": "dist/declarativ.js",
   "scripts": {
