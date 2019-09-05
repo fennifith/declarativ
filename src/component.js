@@ -36,11 +36,6 @@ class Node {
     }
 
     isBlocking() {
-        for (let i in Object.values(this.children)) {
-            if (this.children[i].isBlocking())
-                return true;
-        }
-
         return this.data.isBlocking();
     }
 
