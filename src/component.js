@@ -71,7 +71,6 @@ class Node {
             } else children.push(resolveNode(child));
         };
 
-        console.log(this.children);
         await Promise.all(Object.values(this.children).map(addChild));
 
         return children;
@@ -132,16 +131,42 @@ class Component extends Node {
         this.tasks = new PendingTasks();
     }
 
+    isBlocking() {
+        return true; // TODO: allow non-blocking simple components
+    }
+
     /**
      * Calls the passed function on the rendered element.
      *
-     * @param {function(Element)} fun
+     * @param {function(HTMLElement|jQuery, Object)} fun
      * @returns {Component}
      */
     run(fun) {
         let node = this.clone();
         node.tasks = new PendingTasks(this.tasks).push(fun);
         return node;
+    }
+
+    runWithValue(value, fun) {
+        return this.run(async function(element, data) {
+            return fun(element, await (new DataResolvable(value)).resolve(data));
+        })
+    }
+
+    attr(name, value) {
+        return this.runWithValue(value, (element, resolvedValue) => {
+            dom.element(element).attr(name, resolvedValue);
+        });
+    }
+
+    className(value) {
+        return this.attr("class", value);
+    }
+
+    on(event, fun) {
+        return this.run((element) => {
+            dom.element(element).on(event, fun);
+        });
     }
 
     async renderString(parentData) {
@@ -153,6 +178,8 @@ class Component extends Node {
         await forEachAsync(await this.resolveChildren(data), async function(child) {
             innerHtml += await child.renderString(data);
         });
+
+        // TODO: support attribute values / this.tasks.call() on string returns
 
         // render HTML structure
         return this.template(innerHtml, data);

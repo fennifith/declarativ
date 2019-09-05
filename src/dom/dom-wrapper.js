@@ -15,6 +15,40 @@ class ElementImpl {
         this.element = element;
     }
 
+    attr(name, value) {
+        if (value)
+            this.setAttr(name, value);
+        else return this.getAttr(name);
+    }
+
+    getAttr(name) {
+        throw "No getAttr implementation";
+    }
+
+    setAttr(name, value) {
+        throw "No setAttr implementation";
+    }
+
+    get className() {
+        return this.getClassName();
+    }
+
+    set className(value) {
+        this.setClassName(value);
+    }
+
+    getClassName() {
+        return this.getAttr("class");
+    }
+
+    setClassName(value) {
+        this.setAttr("class", value);
+    }
+
+    on(event, fun) {
+        throw "No onEvent implementation";
+    }
+
     /**
      * Inserts one element before another inside
      * of the element that it is called upon.
@@ -80,6 +114,18 @@ class HTMLElementImpl extends ElementImpl {
         super(element);
     }
 
+    setAttr(name, value) {
+        this.element.setAttribute(name, value);
+    }
+
+    getAttr(name) {
+        return this.element.getAttribute(name);
+    }
+
+    on(event, fun) {
+        this.element.addEventListener(event, fun);
+    }
+
     insertBefore(other, ref) {
         this.element.insertBefore(other, ref);
     }
@@ -118,6 +164,18 @@ class HTMLElementImpl extends ElementImpl {
 class JQueryElementImpl extends ElementImpl {
     constructor(element) {
         super(element);
+    }
+
+    setAttr(name, value) {
+        this.element.attr(name, value);
+    }
+
+    getAttr(name) {
+        return this.element.attr(name);
+    }
+
+    on(event, fun) {
+        this.element.on(event, fun);
     }
 
     insertBefore(other, ref) {

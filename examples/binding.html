@@ -44,19 +44,19 @@
             el.div(
                 el.h3((repo) => repo.full_name),
                 el.p((repo) => repo.description),
-                el.a("View on GitHub")//.attr("href", (repo) => repo.html_url)
+                el.a("View on GitHub").attr("href", (repo) => repo.html_url)
             ).bind(repoData),
             el.h2("Author"),
             el.div(
-                el.img(),//.attr("src", (user) => user.avatar_url),
+                el.img().attr("src", (user) => user.avatar_url),
                 el.h3((user) => `${user.name} (@${user.login})`),
                 el.p((user) => user.bio),
                 el.ul(
                     el.li(
-                        el.a("View on GitHub")//.attr("href", (user) => user.html_url)
+                        el.a("View on GitHub").attr("href", (user) => user.html_url)
                     ),
                     el.li(
-                        el.a("Open blog")//.attr("href", (user) => user.blog)
+                        el.a("Open blog").attr("href", (user) => user.blog)
                     )
                 )
             ).bind(userData)

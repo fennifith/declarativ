@@ -43,6 +43,10 @@ class PendingTasks {
         else this.tasks = [];
     }
 
+    get length() {
+        return this.tasks.length;
+    }
+
     push(fun) {
         this.tasks.push(fun);
         return this;
