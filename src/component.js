@@ -81,6 +81,13 @@ class Node {
         throw "No renderString implementation";
     }
 
+    /**
+     * Render the component and its child elements on the DOM.
+     *
+     * @param {Object} parentData                   The (resolved) data of the parent element to inherit.
+     * @param {jQuery|HTMLElement?} tempElement     The temporary element to replace upon render.
+     * @returns {Promise<jQuery|HTMLElement>}
+     */
     async render(parentData, tempElement) {
         throw "No render implementation.";
     }
@@ -144,20 +151,13 @@ class Component extends Node {
         // create basic html
         let innerHtml = "";
         await forEachAsync(await this.resolveChildren(data), async function(child) {
-            innerHtml += await child.renderString(parentData);
+            innerHtml += await child.renderString(data);
         });
 
         // render HTML structure
         return this.template(innerHtml, data);
     }
 
-    /**
-     * Render the component and its child elements on the DOM.
-     *
-     * @param {Object} parentData                   The (resolved) data of the parent element to inherit.
-     * @param {jQuery|HTMLElement} tempElement      The temporary element to replace upon render.
-     * @returns {Promise<jQuery|HTMLElement>}
-     */
     async render(parentData, tempElement) {
         // resolve critical data first
         let data = await this.data.resolve(parentData);
@@ -170,7 +170,7 @@ class Component extends Node {
                 let id = `render-${Math.floor(Math.random() * 1000)}-${Date.now()}`;
                 innerHtml += `<template id="${id}"></template>`;
                 components[id] = child;
-            } else innerHtml += await child.renderString(parentData);
+            } else innerHtml += await child.renderString(data);
         });
 
         // render HTML structure
