@@ -74,3 +74,22 @@ describe("PendingTasks class (util/resolvable.js)", () => {
         expect(val).to.equal(20);
     });
 });
+
+describe("Element Tests (elements.js)", () => {
+    const el = require('./src/elements.js');
+
+    it("should render an empty tag", async function() {
+        expect(await el.p().renderString()).to.be.equal("<p></p>");
+    });
+
+    it("should render text inside a tag", async function() {
+        expect(await el.p("Hello!").renderString()).to.be.equal("<p>Hello!</p>");
+    });
+
+    it("should render elements inside a tag", async function() {
+        expect(await el.p(
+            el.span(),
+            el.a()
+        ).renderString()).to.be.equal("<p><span></span><a></a></p>")
+    });
+});
