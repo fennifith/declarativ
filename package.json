@@ -1,6 +1,6 @@
 {
   "name": "declarativ",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "This is definitely not JSX.",
   "main": "src/index.js",
   "files": [

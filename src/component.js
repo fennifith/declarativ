@@ -137,15 +137,30 @@ class Component extends Node {
     }
 
     /**
-     * Calls the passed function on the rendered element.
      *
-     * @param {function(HTMLElement|jQuery, Object)} fun
+     * @param {function(ElementImpl, Object)} fun
      * @returns {Component}
      */
-    run(fun) {
+    runWrapped(fun) {
         let node = this.clone();
         node.tasks = new PendingTasks(this.tasks).push(fun);
         return node;
+    }
+
+    /**
+     * Calls the passed function on the rendered element.
+     *
+     * @param {function(HTMLElement|jQuery|string, Object)} fun
+     * @returns {Component}
+     */
+    run(fun) {
+        return this.runWrapped((e, data) => fun(e.get(), data));
+    }
+
+    runWrappedWithValue(value, fun) {
+        return this.runWrapped(async function(element, data) {
+            return fun(element, await (new DataResolvable(value)).resolve(data));
+        })
     }
 
     runWithValue(value, fun) {
@@ -155,8 +170,8 @@ class Component extends Node {
     }
 
     attr(name, value) {
-        return this.runWithValue(value, (element, resolvedValue) => {
-            dom.element(element).attr(name, resolvedValue);
+        return this.runWrappedWithValue(value, (element, resolvedValue) => {
+            element.attr(name, resolvedValue);
         });
     }
 
@@ -165,8 +180,8 @@ class Component extends Node {
     }
 
     on(event, fun) {
-        return this.run((element) => {
-            dom.element(element).on(event, fun);
+        return this.runWrapped((element) => {
+            element.on(event, fun);
         });
     }
 
@@ -183,7 +198,10 @@ class Component extends Node {
         // TODO: support attribute values / this.tasks.call() on string returns
 
         // render HTML structure
-        return this.template(innerHtml, data);
+        let str = this.template(innerHtml, data);
+        let strImpl = dom.element(str);
+        await this.tasks.call(strImpl, data);
+        return strImpl.get();
     }
 
     async render(parentData, tempElement) {
@@ -204,7 +222,7 @@ class Component extends Node {
         // render HTML structure
         let element = dom.createHtml(this.template(innerHtml, data));
         let elementImpl = dom.element(element);
-        await this.tasks.call(element, data);
+        await this.tasks.call(elementImpl, data);
         if (tempElement)
             dom.element(tempElement).replaceWith(element);
 

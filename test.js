@@ -108,7 +108,13 @@ describe("Element Tests", () => {
             expect(
                 await el.p(Promise.resolve("Hello!")).renderString()
             ).to.be.equal("<p>Hello!</p>");
-        })
+        });
+
+        it("should render tag attributes", async function() {
+            expect(
+                await el.p().attr("id", "render").renderString()
+            ).to.be.equal('<p id="render"></p>')
+        });
     });
 
     describe("Data Binding", () => {

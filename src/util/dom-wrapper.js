@@ -102,6 +102,38 @@ class ElementImpl {
     empty() {
         throw "No clear implementation"
     }
+
+    get() {
+        return this.element;
+    }
+}
+
+/**
+ * The most hacky and basic possible implementation
+ * for string HTML parsing / manipulation.
+ *
+ * @class StringElementImpl
+ */
+class StringElementImpl extends ElementImpl {
+    constructor(element) {
+        super(element);
+        this.attrs = {};
+    }
+
+    setAttr(name, value) {
+        this.attrs[name] = value;
+    }
+
+    getAttr(name) {
+        return this.attrs[name];
+    }
+
+    get() {
+        let index = this.element.indexOf(">");
+        return this.element.slice(0, index)
+            + Object.keys(this.attrs).map((key) => ` ${key}="${this.attrs[key]}"`)
+            + this.element.slice(index);
+    }
 }
 
 /**
@@ -231,12 +263,14 @@ function createText(str) {
  * Provides an implementation of basic DOM functions for a
  * specified element.
  *
- * @param {HTMLElementImpl|HTMLElement|jQuery} e        The element to provide an implementation for.
+ * @param {HTMLElementImpl|HTMLElement|jQuery|string} e        The element to provide an implementation for.
  * @returns {ElementImpl}
  */
 function element(e) {
     if (e instanceof ElementImpl)
         return e;
+    else if (typeof e === "string")
+        return new StringElementImpl(e);
     else if (e instanceof HTMLElement)
         return new HTMLElementImpl(e);
     else if (e instanceof jQuery)
