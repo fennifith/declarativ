@@ -1,4 +1,5 @@
 .idea/
 node_modules/
+dist/
 package-install.lock
 .DS_Store
