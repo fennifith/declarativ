@@ -8,7 +8,7 @@
     <script type="text/javascript" src="https://unpkg.com/jquery@3.3.1/dist/jquery.min.js"></script>
     <script type="text/javascript" src="../dist/declarativ.js"></script>
     <script>
-        const { renderElement, compose, elements: el } = declarativ;
+        const { renderElement, elements: { div, p, button, hr, article } } = declarativ;
 
         // lorem ipsum Promise (async example)
         let lorem = new Promise((resolve, reject) => {
@@ -21,33 +21,15 @@
             }, 2500);
         });
 
-        // first template example
-        const details = compose((inner, data) => `
-            <details>
-                <summary>${data.text || 'This is a summary.'}</summary>
-                ${inner}
-            </details>
-        `);
-
-        // second template example (just use a function)
-        const describedItem = function(title, content) {
-            return el.div(
-                el.h3(title),
-                el.p(content)
-            )
-        };
-
         renderElement(
             $("#render-target"),
-            el.div(
-                el.p("Hello!"),
-                el.button("Click me!").on("click", () => alert("Hello!")),          // set event listeners (this is literally just passed to the element)
-                el.hr(),
-                el.article().bind(lorem).forEach(                                   // data can be bound to a Promised value - the branch waits for it to resolve before rendering
-                    el.p((data) => data)                                            // elements can be repeated for each item in a bound iterable (the array of lorem ipsum paragraphs)
-                ),
-                details("This is a bunch of fun templated content.").bind({ text: "Content content, templated content" }),
-                describedItem("This is another type of templated content.", "It works a little bit differently - as a function call, instead of a composed element. Most of the time, this method is easier to work with.")
+            div(
+                p("Hello!"),
+                button("Click me!").on("click", () => alert("Hello!")),          // set event listeners (this is literally just passed to the element)
+                hr(),
+                article().bind(lorem).forEach(                                   // data can be bound to a Promised value - the branch waits for it to resolve before rendering
+                    p((data) => data)                                            // elements can be repeated for each item in a bound iterable (the array of lorem ipsum paragraphs)
+                )
             )
         );
     </script>

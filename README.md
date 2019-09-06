@@ -39,16 +39,16 @@ cd declarativ && make install
 
 ## Usage
 
-Most component trees can be built using the standard functions defined in `declarativ.elements`. I often shorten this to `el` when using more than one or two of them, which makes it a bit easier to work with. Here's an example:
+Most component trees can be built using the standard functions defined in `declarativ.elements`. I often use [destructuring assignment](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment) to move them to the current scope when using more than one or two of them, which makes it a bit easier to work with. Here's an example:
 
 ```js
-const el = declarativ.elements;
+const { div, h1, p, a } = declarativ.elements;
 
-let components = el.div(
-  el.h1("This is a big header."),
-  el.p(
+let components = div(
+  h1("This is a big header."),
+  p(
     "Here, have a bit of text",
-    el.a("and a link").attr("href", "https://example.com/"),
+    a("and a link").attr("href", "https://example.com/"),
     "."
   )
 );
@@ -69,12 +69,12 @@ Working examples can be found in the [examples](../../tree/master/examples/) fol
 Promises can be mixed in or bound to components to pass data to them, and the component will wait for them to resolve before rendering. Because inner components depend on their parent nodes to render, higher components will render first, and only the bound component and inner nodes will wait for the Promise.
 
 ```js
-el.div(
-  el.p("This will render first."),
-  el.p(new Promise((resolve) => {
+div(
+  p("This will render first."),
+  p(new Promise((resolve) => {
     setTimeout(() => resolve("This will render second."), 1000);
   })),
-  el.p(
+  p(
     new Promise((resolve) => {
       setTimeout(() => resolve("This will render last..."), 2000);
     }),
@@ -88,11 +88,11 @@ el.div(
 Nodes can exist in various forms inside of a component. In the last example, I specified a Promise and a string as the contents of a paragraph element. However, not all of the promises you use will return a string. Often times, you will handle data structures that need to be bound to multiple elements. This is where the `.bind()` function comes in useful.
 
 ```js
-el.div(
-  el.p("This will render first"),
-  el.div(
-    el.p((data) => data.first),
-    el.p((data) => data.second)
+div(
+  p("This will render first"),
+  div(
+    p((data) => data.first),
+    p((data) => data.second)
   ).bind(Promise.resolve({
     first: "This is a string.",
     second: "This is another string."
@@ -116,9 +116,9 @@ The easiest is to just create a function that returns another component, like so
 
 ```js
 function myComponent(title, description) {
-  return el.div(
-    el.h3(title),
-    el.p(description)
+  return div(
+    h3(title),
+    p(description)
   );
 }
 ```
@@ -131,7 +131,7 @@ If you want to make a component that just slightly extends upon an existing inst
 
 ```js
 const myComponent = declarativ.wrapCompose(
-  el.div().className("fancypants")
+  div().className("fancypants")
 );
 ``` 
 

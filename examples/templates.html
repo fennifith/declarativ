@@ -8,32 +8,32 @@
 <script type="text/javascript" src="https://unpkg.com/jquery@3.3.1/dist/jquery.min.js"></script>
 <script type="text/javascript" src="../dist/declarativ.js"></script>
 <script>
-    const { wrapCompose, compose, renderElement, elements: el } = declarativ;
+    const { wrapCompose, compose, renderElement, elements: { div, h1, h2, p, a, hr, article } } = declarativ;
 
-    function article(title, body) {
-        return el.article(
-            el.h2(title),
-            el.p(body)
+    function blogPost(title, body) {
+        return article(
+            h2(title),
+            p(body)
         );
     }
 
-    const bigHeader = wrapCompose(el.h1().attr("style", "font-size: 3em;"));
+    const bigHeader = wrapCompose(h1().attr("style", "font-size: 3em;"));
 
     const center = compose((inner) => `<center>${inner}</center>`);
 
     renderElement(
         $("#render-target"),
-        el.div(
+        div(
             center(
                 bigHeader("My Blog!"),
-                el.p("This is my blog, where I post my blog posts.")
+                p("This is my blog, where I post my blog posts.")
             ),
-            el.hr(),
-            article(
+            hr(),
+            blogPost(
                 "Why Cream Tea is far superior to a Tea Sandwich",
                 [
                     "The cream. I just love the cream. I can't live without it. It consumes me. ",
-                    el.a("Look at this cream.").attr("href", "https://en.wikipedia.org/wiki/Cream_tea#/media/File:Cornish_cream_tea_2.jpg")
+                    a("Look at this cream.").attr("href", "https://en.wikipedia.org/wiki/Cream_tea#/media/File:Cornish_cream_tea_2.jpg")
                 ]
             )
         )

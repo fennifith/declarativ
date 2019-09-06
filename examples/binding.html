@@ -8,7 +8,7 @@
 <script type="text/javascript" src="https://unpkg.com/jquery@3.3.1/dist/jquery.min.js"></script>
 <script type="text/javascript" src="../dist/declarativ.js"></script>
 <script>
-    const { renderElement, elements: el } = declarativ;
+    const { renderElement, elements: { div, h1, h2, h3, p, a, img, ul, li } } = declarativ;
 
     // This example shows some of the things possible with the data handling functions
     // described in https://github.com/fennifith/declarativ#handling-data
@@ -39,24 +39,24 @@
 
     renderElement(
         $("#render-target"),
-        el.div(
-            el.h1("Repository Information"),
-            el.div(
-                el.h3((repo) => repo.full_name),
-                el.p((repo) => repo.description),
-                el.a("View on GitHub").attr("href", (repo) => repo.html_url)
+        div(
+            h1("Repository Information"),
+            div(
+                h3((repo) => repo.full_name),
+                p((repo) => repo.description),
+                a("View on GitHub").attr("href", (repo) => repo.html_url)
             ).bind(repoData),
-            el.h2("Author"),
-            el.div(
-                el.img().attr("src", (user) => user.avatar_url),
-                el.h3((user) => `${user.name} (@${user.login})`),
-                el.p((user) => user.bio),
-                el.ul(
-                    el.li(
-                        el.a("View on GitHub").attr("href", (user) => user.html_url)
+            h2("Author"),
+            div(
+                img().attr("src", (user) => user.avatar_url),
+                h3((user) => `${user.name} (@${user.login})`),
+                p((user) => user.bio),
+                ul(
+                    li(
+                        a("View on GitHub").attr("href", (user) => user.html_url)
                     ),
-                    el.li(
-                        el.a("Open blog").attr("href", (user) => user.blog)
+                    li(
+                        a("Open blog").attr("href", (user) => user.blog)
                     )
                 )
             ).bind(userData)
