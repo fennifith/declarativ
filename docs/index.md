@@ -1,3 +1,5 @@
+# Declarativ
+
 "Declarativ" is a lightweight and asynchronous HTML templating library for JavaScript. It definitely isn't my own reinvention of React's [JSX](https://reactjs.org/docs/introducing-jsx.html). Okay, it kind of is, but whatever, it's still cool.
 
 Declarativ allows you to write a document tree using a series of nested function calls, much like how Declarative UI works inside [Flutter](https://flutter.dev/docs/get-started/flutter-for/declarative#how-to-change-ui-in-a-declarative-framework) or in [Jetpack Compose](https://developer.android.com/jetpack/compose). Here's an example:
@@ -11,6 +13,12 @@ container(
   )
 )
 ```
+
+## Examples
+
+- [Basic](./examples/basic.html)
+- [Data Binding](./examples/binding.html)
+- [Templating](./examples/templates.html)
 
 ## Installation
 
@@ -61,8 +69,6 @@ declarativ.renderElement($("#content"), components).then(() => {
     console.log("Elements rendered!");
 });
 ```
-
-Working examples can be found in the [examples](../../tree/master/docs/examples/) folder.
 
 ### Promises
 
