@@ -104,7 +104,7 @@ Okay, a lot is happening here. I'll slow down and explain.
 
 The `bind` function allows you to specify a set of data to be passed to other parts of a component - and extends upon the types of nodes that can be placed inside it. Because the paragraph elements inside the div are not bound to any data, they inherit the Promise that is bound to their parent. The nodes inside of the paragraph elements are then specified as a function of the resolved data, returning the text to render.
 
-A more complex data binding situation based off the GitHub API can be found in [examples/binding.html](./docs/examples/binding.html).
+A more complex data binding situation based off the GitHub API can be found in [examples/binding.html](./examples/binding.html).
 
 ### Templates
 
@@ -145,4 +145,4 @@ By "template function", it must be a function that accepts a string and returns 
 const myComponent = declarativ.compose((inner) => `<center>${inner}</center>`);
 ```
 
-Working examples of all of these templates can be found in [examples/templates.html](./docs/examples/templates.html). 
+Working examples of all of these templates can be found in [examples/templates.html](./examples/templates.html). 
