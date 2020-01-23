@@ -129,12 +129,27 @@ class Component extends Node {
     constructor(template, children) {
         super(children);
         this.template = template;
-        this.tasks = new PendingTasks();
+		this.tasks = new PendingTasks();
+		this.tasksAfter = new PendingTasks();
     }
 
     isBlocking() {
         return true; // TODO: allow non-blocking simple components
-    }
+	}
+	
+	/**
+	 * Calls the passed function on the rendered element after
+	 * it is added to the page/DOM.
+	 * 
+	 * @param {function(HTMLElement|jQuery|string, Object)} fun 
+	 * @returns {Component}
+	 */
+	runAfter(fun) {
+		let node = this.clone();
+		node.tasks = this.tasks;
+		node.tasksAfter = new PendingTasks(this.tasksAfter).push(fun);
+		return node;
+	}
 
     /**
      *
@@ -145,7 +160,7 @@ class Component extends Node {
         let node = this.clone();
         node.tasks = new PendingTasks(this.tasks).push(fun);
         return node;
-    }
+	}
 
     /**
      * Calls the passed function on the rendered element.
@@ -230,7 +245,9 @@ class Component extends Node {
         await Promise.all(Object.keys(components).map(function(id) {
             let temp = elementImpl.find(`template#${id}`);
             return components[id].render(data, temp);
-        }));
+		}));
+		
+		await this.tasksAfter.call(elementImpl.get(), data);
 
         return element;
     }
