@@ -305,14 +305,20 @@ class Component extends Node {
 			element = await this.renderElement(parentData, tempElement);
 		} catch (e) {
 			if (this.fallbackState)
-				await this.fallbackState.bind(e).render(parentData, tempElement);
+				element = await this.fallbackState.bind(e).render(parentData, tempElement);
 			else throw e;
 		}
 
-		this.rerender = function() {
+		this.rerender = () => {
 			// re-render the element on observable change
+			if (this.data instanceof DataObservable)
+				this.data.unsubscribe(this.rerender);
+			
 			this.render(parentData, element);
 		};
+
+		if (this.data instanceof DataObservable)
+			this.data.subscribe(this.rerender);
 
         return element;
     }

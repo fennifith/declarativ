@@ -47,12 +47,18 @@ class DataObservable extends DataResolvable {
 		this.listeners = [];
 	}
 
-	update() {
+	update(value) {
+		this.value = value;
 		this.listeners.forEach((listener) => listener(this.value));
 	}
 
-	addListener(listener) {
+	subscribe(listener) {
 		this.listeners.push(listener);
+	}
+
+	unsubscribe(listener) {
+		if (this.listeners.includes(listener))
+			this.listeners.splice(this.listeners.indexOf(listener), 1);
 	}
 
 }
@@ -69,10 +75,10 @@ class ProxyDataObservable extends DataObservable {
 		super(value);
 		this.proxy = new Proxy(value, {
 			set: (obj, prop, val) => {
-				this.update();
+				this.update(this.value);
 			},
 			deleteProperty: (obj, prop) => {
-				this.update();
+				this.update(this.value);
 			}
 		});
 	}
