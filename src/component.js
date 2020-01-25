@@ -2,17 +2,24 @@ const { DataResolvable, DataObservable, PendingTasks, forEachAsync } = require('
 const { escapeHtml } = require('./util/html.js');
 const dom = require('./util/dom-wrapper.js');
 
-function resolveNode(variable) {
+function node(variable) {
     if (variable instanceof Node)
         return variable;
-    else if (typeof variable == "string")
-        return new TextNode(variable);
-    else throw "declarativ: Cannot resolve passed node: " + variable;
+    else if (typeof variable === "string")
+		return new TextNode(variable);
+	else if (typeof variable === "function" || variable instanceof Promise || variable instanceof Array)
+		return new Component(s => s, variable)
+	else if (variable === null || typeof variable === "undefined")
+		return null;
+    else {
+		console.error("declarativ: Cannot resolve passed node: ", variable);
+	}
 }
 
 class Node {
     constructor(children) {
-        this.children = (children || []).map((child) => new DataResolvable(child));
+		this.children = (children || []).map((child) => new DataResolvable(child));
+		this.fallback = null;
         this.data = new DataResolvable((parentData) => parentData);
     }
 
@@ -30,7 +37,11 @@ class Node {
         let node = this.clone();
         node.data = new DataResolvable(data);
         return node;
-    }
+	}
+	
+	otherwise(...nodes) {
+		this.fallback = node(nodes);
+	}
 
     clone() {
         return Object.assign(Object.create(Object.getPrototypeOf(this)), this);
@@ -64,15 +75,13 @@ class Node {
      */
     async resolveChildren(data) {
         let children = [];
-        let addChild = async function(resolvable) {
-            let child = await resolvable.resolve(data);
-
-            if (child instanceof Array) { // flatten inner arrays
-                await Promise.all(Object.values(child).map((c) => addChild(new DataResolvable(c))));
-            } else children.push(resolveNode(child));
-        };
-
-        await Promise.all(Object.values(this.children).map(addChild));
+		
+		let arr = Object.values(this.children);
+		for (let i = 0; i < arr.length; i++) {
+			let childNode = node(await arr[i].resolve(data));
+			if (childNode)
+				children.push(childNode);
+		}
 
         return children;
     }
@@ -132,6 +141,7 @@ class Component extends Node {
 		this.tasks = new PendingTasks();
 		this.tasksAfter = new PendingTasks();
 		this.observing = false;
+		this.rerender = () => {};
     }
 
     isBlocking() {
@@ -214,26 +224,32 @@ class Component extends Node {
     }
 
     async renderString(parentData) {
-        // resolve critical data first
-        let data = await this.data.resolve(parentData);
+		try {
+			// resolve critical data first
+			let data = await this.data.resolve(parentData);
 
-        // create basic html
-        let innerHtml = "";
-        await forEachAsync(await this.resolveChildren(data), async function(child) {
-            innerHtml += await child.renderString(data);
-        });
-
-        // TODO: support attribute values / this.tasks.call() on string returns
-
-        // render HTML structure
-        let str = this.template(innerHtml, data);
-        let strImpl = dom.element(str);
-        await this.tasks.call(strImpl, data);
-        return strImpl.get();
-    }
-
-    async render(parentData, tempElement) {
-        // resolve critical data first
+			// create basic html
+			let innerHtml = "";
+			await forEachAsync(await this.resolveChildren(data), async function(child) {
+				innerHtml += await child.renderString(data);
+			});
+	 
+			// TODO: support attribute values / this.tasks.call() on string returns
+	 
+			// render HTML structure
+			let str = this.template(innerHtml, data);
+			let strImpl = dom.element(str);
+			await this.tasks.call(strImpl, data);
+			return strImpl.get();
+		} catch (e) {
+			if (this.fallback)
+				return this.fallback.bind(e).renderString(parentData)
+			else throw e;
+		}
+	}
+	
+	async renderElement(parentData, tempElement) {
+		// resolve critical data first
         let data = await this.data.resolve(parentData);
 
         // create basic html
@@ -262,16 +278,26 @@ class Component extends Node {
 		
 		await this.tasksAfter.call(element, data);
 
-		if (data instanceof DataObservable && !this.observing) {
-			data.addListener(() => {
-				// re-render the element on observable change
-				// if the data is observable, it should resolve without parent data
-				this.render(null, element);
-			});
+		return element;
+	}
+
+    async render(parentData, tempElement) {
+		let element = null;
+		try {
+			element = await this.renderElement(parentData, tempElement);
+		} catch (e) {
+			if (this.fallback)
+				await this.fallback.bind(e).render(parentData, tempElement);
+			else throw e;
 		}
+
+		this.rerender = function() {
+			// re-render the element on observable change
+			this.render(parentData, element);
+		};
 
         return element;
     }
 }
 
-module.exports = { Component };
+module.exports = { Component, node };
