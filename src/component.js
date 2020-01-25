@@ -270,7 +270,7 @@ class Component extends Node {
         // create basic html
         let innerHtml = "";
         let components = {};
-        await forEachAsync(await this.resolveChildren(data), async function(child) {
+        await forEachAsync(await this.resolveChildren(data), async (child) => {
             if (child.isBlocking()) {
                 let id = `render-${Math.floor(Math.random() * 99999)}-${Date.now()}`;
 				innerHtml += this.loadingState
