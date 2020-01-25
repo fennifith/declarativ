@@ -1,4 +1,4 @@
-const { DataResolvable, PendingTasks, forEachAsync } = require('./util/resolvable.js');
+const { DataResolvable, DataObservable, PendingTasks, forEachAsync } = require('./util/resolvable.js');
 const { escapeHtml } = require('./util/html.js');
 const dom = require('./util/dom-wrapper.js');
 
@@ -131,6 +131,7 @@ class Component extends Node {
         this.template = template;
 		this.tasks = new PendingTasks();
 		this.tasksAfter = new PendingTasks();
+		this.observing = false;
     }
 
     isBlocking() {
@@ -259,7 +260,15 @@ class Component extends Node {
             return components[id].render(data, temp);
 		}));
 		
-		await this.tasksAfter.call(elementImpl.get(), data);
+		await this.tasksAfter.call(element, data);
+
+		if (data instanceof DataObservable && !this.observing) {
+			data.addListener(() => {
+				// re-render the element on observable change
+				// if the data is observable, it should resolve without parent data
+				this.render(null, element);
+			});
+		}
 
         return element;
     }

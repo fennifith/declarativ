@@ -35,6 +35,55 @@ class DataResolvable {
 }
 
 /**
+ * A wrapper for data-based event streams providing continuous
+ * updates to the declarativ tree.
+ * 
+ * @class DataObservable
+ */
+class DataObservable extends DataResolvable {
+
+	constructor(value) {
+		super(value);
+		this.listeners = [];
+	}
+
+	update() {
+		this.listeners.forEach((listener) => listener(this.value));
+	}
+
+	addListener(listener) {
+		this.listeners.push(listener);
+	}
+
+}
+
+/**
+ * A wrapper for data-based event streams providing continuous
+ * updates to the declarativ tree using the js Proxy API.
+ * 
+ * @class ProxyDataObservable
+ */
+class ProxyDataObservable extends DataObservable {
+
+	constructor(value) {
+		super(value);
+		this.proxy = new Proxy(value, {
+			set: (obj, prop, val) => {
+				this.update();
+			},
+			deleteProperty: (obj, prop) => {
+				this.update();
+			}
+		});
+	}
+
+}
+
+function observe(data) {
+	return new ProxyDataObservable(data);
+}
+
+/**
  * A set of pending functions to execute at a later
  * point in time.
  *
@@ -73,4 +122,4 @@ async function forEachAsync(iterable, fun) {
         await fun(iterable[i], i);
 }
 
-module.exports = { DataResolvable, PendingTasks, forEachAsync };
+module.exports = { DataResolvable, DataObservable, ProxyDataObservable, PendingTasks, forEachAsync, observe };
