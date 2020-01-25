@@ -182,13 +182,25 @@ class Component extends Node {
         return this.run(async function(element, data) {
             return fun(element, await (new DataResolvable(value)).resolve(data));
         })
-    }
+	}
+	
+	id(value) {
+		return this.attr("id", value);
+	}
 
     attr(name, value) {
         return this.runWrappedWithValue(value, (element, resolvedValue) => {
             element.attr(name, resolvedValue);
         });
-    }
+	}
+	
+	attrs(value) {
+		return this.runWrappedWithValue(value, (element, resolvedValue) => {
+			Object.entries(resolvedValue).forEach(([key, val]) => {
+				element.attr(key, val);
+			});
+		});
+	}
 
     className(value) {
         return this.attr("class", value);
