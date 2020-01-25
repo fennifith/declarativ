@@ -7,10 +7,12 @@ function node(variable) {
         return variable;
     else if (typeof variable === "string")
 		return new TextNode(variable);
-	else if (typeof variable === "function" || variable instanceof Promise || variable instanceof Array)
+	else if (variable instanceof Array)
 		return new Component(s => s, variable)
+	else if (typeof variable === "function" || variable instanceof Promise)
+		return new Component(s => s, [variable])
 	else if (variable === null || typeof variable === "undefined")
-		return null;
+		return new Component(() => { throw "Null component..."; });
     else {
 		console.error("declarativ: Cannot resolve passed node: ", variable);
 	}
@@ -19,7 +21,8 @@ function node(variable) {
 class Node {
     constructor(children) {
 		this.children = (children || []).map((child) => new DataResolvable(child));
-		this.fallback = null;
+		this.fallbackState = null;
+		this.loadingState = null;
         this.data = new DataResolvable((parentData) => parentData);
     }
 
@@ -39,8 +42,20 @@ class Node {
         return node;
 	}
 	
+	whenError(...nodes) {
+		let n = this.clone();
+		n.fallbackState = node(nodes);
+		return n;
+	}
+
+	whenLoading(...nodes) {
+		let n = this.clone();
+		n.loadingState = node(nodes);
+		return n;
+	}
+
 	otherwise(...nodes) {
-		this.fallback = node(nodes);
+		return this.whenError(nodes);
 	}
 
     clone() {
@@ -242,8 +257,8 @@ class Component extends Node {
 			await this.tasks.call(strImpl, data);
 			return strImpl.get();
 		} catch (e) {
-			if (this.fallback)
-				return this.fallback.bind(e).renderString(parentData)
+			if (this.fallbackState)
+				return this.fallbackState.bind(e).renderString(parentData)
 			else throw e;
 		}
 	}
@@ -257,8 +272,11 @@ class Component extends Node {
         let components = {};
         await forEachAsync(await this.resolveChildren(data), async function(child) {
             if (child.isBlocking()) {
-                let id = `render-${Math.floor(Math.random() * 1000)}-${Date.now()}`;
-                innerHtml += `<template id="${id}"></template>`;
+                let id = `render-${Math.floor(Math.random() * 99999)}-${Date.now()}`;
+				innerHtml += this.loadingState
+					? await this.loadingState.id(id).renderString(parentData)
+					: `<template id="${id}"></template>`;
+				
                 components[id] = child;
             } else innerHtml += await child.renderString(data);
         });
@@ -286,8 +304,8 @@ class Component extends Node {
 		try {
 			element = await this.renderElement(parentData, tempElement);
 		} catch (e) {
-			if (this.fallback)
-				await this.fallback.bind(e).render(parentData, tempElement);
+			if (this.fallbackState)
+				await this.fallbackState.bind(e).render(parentData, tempElement);
 			else throw e;
 		}
 

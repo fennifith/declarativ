@@ -14,7 +14,7 @@ function when(condition, ...components) {
 	else if (condition instanceof Promise)
 		return node(condition.then((c) => when(c, components)));
 
-	return condition ? node(components) : null;
+	return node(condition ? components : null);
 }
 
 function whenEqual(value, ...components) {

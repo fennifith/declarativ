@@ -78,7 +78,8 @@ describe("Utility Functions", () => {
 });
 
 describe("Element Tests", () => {
-    const el = require('./src/elements.js');
+	const el = require('./src/elements.js');
+	const util = require('./src/utilities.js');
 
     describe("Basic Rendering", () => {
         it("should render an empty tag", async function() {
@@ -115,7 +116,19 @@ describe("Element Tests", () => {
                 await el.p().attr("id", "render").renderString()
             ).to.be.equal('<p id="render"></p>')
         });
-    });
+	});
+	
+	describe("Data States", () => {
+		it("should fallback to error components", async function() {
+			expect(
+				await el.p(
+					() => { throw "aaa"; }
+				).whenError(
+					el.span("Oh no.")
+				).renderString()
+			).to.be.equal("<span>Oh no.</span>");
+		});
+	});
 
     describe("Data Binding", () => {
         it("should bind data to child functions", async function() {
@@ -137,5 +150,41 @@ describe("Element Tests", () => {
                 ).bind("Hello!").renderString()
             ).to.be.equal("<p><span><span>Hello!</span></span></p>");
         });
-    });
+	});
+	
+	describe("Util Components (utilities.js)", () => {
+		it("iterates over arrays with forEach()", async function() {
+			expect(
+				await el.p(
+					util.forEach(
+						el.span(str => str)
+					)
+				).bind(["a", "b", "c"]).renderString()
+			).to.be.equal("<p><span>a</span><span>b</span><span>c</span></p>");
+		});
+
+		it("checks conditions with when()", async function() {
+			expect(
+				await el.p(
+					util.when(true, "yep")
+				).renderString()
+			).to.be.equal("<p>yep</p>");
+		});
+
+		it("defaults to fallback with failing when()", async function() {
+			expect(
+				await el.p(
+					util.when(false, "yep").otherwise("nope")
+				).renderString()
+			).to.be.equal("<p>nope</p>");
+		});
+
+		it("handles delayed/bound data correctly in when() statements", async function() {
+			expect(
+				await el.p(
+					util.when((b) => b, "yep").otherwise("nope")
+				).bind(true).renderString()
+			).to.be.equal("<p>yep</p>");
+		});
+	});
 });
