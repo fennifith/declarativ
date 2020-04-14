@@ -1,4 +1,5 @@
 const { Render } = require('./render.js');
+const { forEachAsync } = require('../util/resolvable.js');
 const dom = require('../util/dom-wrapper.js');
 
 class StringRender extends Render {
@@ -21,10 +22,10 @@ class StringRender extends Render {
 
 		// create basic html
 		let innerHtml = "";
-		await forEachAsync(await component.resolveChildren(data), async function(child) {
+		await forEachAsync(await component.resolveChildren(data), async (child) => {
 			if (typeof child === "string")
 				innerHtml += child;
-			else await this.render(data, null, child);
+			else innerHtml += await this.render(data, null, child);
 		});
  
 		// TODO: support attribute values / this.tasks.call() on string returns

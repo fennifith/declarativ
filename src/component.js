@@ -105,7 +105,6 @@ class Node {
 				if (arr.length == 1) // await promises only if they are an only child
 					value = await value.resolve(data);
 				else value = value.resolve(data);
-				console.log("value resolved", value);
 			}
 
 			let childNode = node(value);
