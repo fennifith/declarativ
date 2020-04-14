@@ -1,26 +1,33 @@
 const { DataResolvable, DataObservable, PendingTasks, forEachAsync } = require('./util/resolvable.js');
 const { escapeHtml } = require('./util/html.js');
-const dom = require('./util/dom-wrapper.js');
+const { DOMRender } = require('./render/dom-render.js');
+const { StringRender } = require('./render/string-render.js');
 
 function node(variable) {
     if (variable instanceof Node)
         return variable;
-    else if (typeof variable === "string")
-		return new TextNode(variable);
-	else if (variable instanceof Array)
+    else if (typeof variable === "string") // text string
+		return escapeHtml(variable);
+	else if (variable instanceof Array) // wrap array of component children
 		return new Component(s => s, variable)
-	else if (typeof variable === "function" || variable instanceof Promise)
+	else if (typeof variable === "function" || variable instanceof Promise || variable instanceof DataResolvable) // wrap promised component
 		return new Component(s => s, [variable])
-	else if (variable === null || typeof variable === "undefined")
+	else if (variable === null || typeof variable === "undefined") // null component (throw error on use)
 		return new Component(() => { throw "Null component..."; });
     else {
 		console.error("declarativ: Cannot resolve passed node: ", variable);
 	}
 }
 
+function value(variable) {
+	if (typeof variable === "function" || variable instanceof Promise)
+		return new DataResolvable(variable);
+	else return variable;
+}
+
 class Node {
     constructor(children) {
-		this.children = (children || []).map((child) => new DataResolvable(child));
+		this.children = (children || []).map((child) => value(child));
 		this.fallbackState = null;
 		this.loadingState = null;
         this.data = new DataResolvable((parentData) => parentData);
@@ -32,7 +39,7 @@ class Node {
 
     withChildrenArray(children) {
         let node = this.clone();
-        node.children = children.map((child) => new DataResolvable(child));
+        node.children = children.flat(Infinity).map((child) => value(child));
         return node;
     }
 
@@ -93,7 +100,15 @@ class Node {
 		
 		let arr = Object.values(this.children);
 		for (let i = 0; i < arr.length; i++) {
-			let childNode = node(await arr[i].resolve(data));
+			let value = arr[i];
+			if (arr[i] instanceof DataResolvable) {
+				if (arr.length == 1) // await promises only if they are an only child
+					value = await value.resolve(data);
+				else value = value.resolve(data);
+				console.log("value resolved", value);
+			}
+
+			let childNode = node(value);
 			if (childNode)
 				children.push(childNode);
 		}
@@ -114,29 +129,6 @@ class Node {
      */
     async render(parentData, tempElement) {
         throw "No render implementation.";
-    }
-}
-
-class TextNode extends Node {
-    constructor(text) {
-        super();
-        this.text = text;
-    }
-
-    isBlocking() {
-        return false;
-    }
-
-    async renderString(parentData) {
-        return escapeHtml(this.text);
-    }
-
-    async render(parentData, tempElement) {
-        let element = dom.createText(this.text);
-        if (tempElement)
-            dom.element(tempElement).replaceWith(element);
-
-        return element;
     }
 }
 
@@ -161,6 +153,11 @@ class Component extends Node {
 
     isBlocking() {
         return true; // TODO: allow non-blocking simple components
+	}
+
+	isEmptyTemplate() {
+		// this isn't a perfect check, but it's probably close enough...
+		return this.template("") == "" && this.template.toString().length <= 6;
 	}
 	
 	/**
@@ -238,89 +235,12 @@ class Component extends Node {
         });
     }
 
-    async renderString(parentData) {
-		try {
-			// resolve critical data first
-			let data = await this.data.resolve(parentData);
-
-			// create basic html
-			let innerHtml = "";
-			await forEachAsync(await this.resolveChildren(data), async function(child) {
-				innerHtml += await child.renderString(data);
-			});
-	 
-			// TODO: support attribute values / this.tasks.call() on string returns
-	 
-			// render HTML structure
-			let str = this.template(innerHtml, data);
-			let strImpl = dom.element(str);
-			await this.tasks.call(strImpl, data);
-			return strImpl.get();
-		} catch (e) {
-			if (this.fallbackState)
-				return this.fallbackState.bind(e).renderString(parentData)
-			else throw e;
-		}
-	}
-	
-	async renderElement(parentData, tempElement) {
-		// resolve critical data first
-        let data = await this.data.resolve(parentData);
-
-        // create basic html
-        let innerHtml = "";
-        let components = {};
-        await forEachAsync(await this.resolveChildren(data), async (child) => {
-            if (child.isBlocking()) {
-                let id = `render-${Math.floor(Math.random() * 99999)}-${Date.now()}`;
-				innerHtml += this.loadingState
-					? await this.loadingState.id(id).renderString(parentData)
-					: `<template id="${id}"></template>`;
-				
-                components[id] = child;
-            } else innerHtml += await child.renderString(data);
-        });
-
-        // render HTML structure
-        let element = dom.createHtml(this.template(innerHtml, data));
-        let elementImpl = dom.element(element);
-        await this.tasks.call(elementImpl, data);
-        if (tempElement)
-            dom.element(tempElement).replaceWith(element);
-
-        // render / await child nodes
-        await Promise.all(Object.keys(components).map(function(id) {
-            let temp = elementImpl.find(`template#${id}`);
-            return components[id].render(data, temp);
-		}));
-		
-		await this.tasksAfter.call(element, data);
-
-		return element;
+    async renderString() {
+		return await (new StringRender()).render(null, null, this);
 	}
 
-    async render(parentData, tempElement) {
-		let element = null;
-		try {
-			element = await this.renderElement(parentData, tempElement);
-		} catch (e) {
-			if (this.fallbackState)
-				element = await this.fallbackState.bind(e).render(parentData, tempElement);
-			else throw e;
-		}
-
-		this.rerender = () => {
-			// re-render the element on observable change
-			if (this.data instanceof DataObservable)
-				this.data.unsubscribe(this.rerender);
-			
-			this.render(parentData, element);
-		};
-
-		if (this.data instanceof DataObservable)
-			this.data.subscribe(this.rerender);
-
-        return element;
+    async render(tempElement) {
+		return await (new DOMRender()).render(null, tempElement, this);
     }
 }
 

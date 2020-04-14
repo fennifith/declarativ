@@ -30,33 +30,5 @@ function compose(template) {
     return wrapCompose(new Component(template));
 }
 
-/**
- * Render all components to an element on the HTML DOM.
- *
- * @param {Component} component                     the root component to render
- * @param {Element} tempElement                     the template element that this render should replace
- * @returns {Promise<string>}                       the rendered jQuery element
- */
-async function render(component, tempElement) {
-    console.log('rendering', component);
-    return component.render(null, tempElement);
-}
-
-/**
- * Render all components to the #page element.
- *
- * @param element                                   a jQuery element
- * @param {Component} component                     the root component to render
- * @returns {Promise}                               arbitrary promise resolved upon completion
- */
-async function renderElement(element, component) {
-    let template = dom.createHtml(`<template></template>`);
-    element = dom.element(element);
-    element.empty();
-    element.appendChild(template);
-
-    return render(component, template);
-}
-
-module.exports = {Component, wrapCompose, compose, render, renderElement};
+module.exports = {Component, wrapCompose, compose};
 

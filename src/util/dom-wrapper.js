@@ -59,6 +59,18 @@ class ElementImpl {
      */
     insertBefore(other, ref) {
         throw "No insertBefore implementation";
+	}
+	
+	/**
+     * Inserts one element after another inside
+     * of the element that it is called upon.
+     *
+     * @param {HTMLElement|jQuery} other    The element to insert
+     * @param {HTMLElement|jQuery} ref      The reference/index element to insert
+     *                                      `other` after.
+     */
+    insertAfter(other, ref) {
+        throw "No insertAfter implementation";
     }
 
     /**
@@ -160,6 +172,12 @@ class HTMLElementImpl extends ElementImpl {
 
     insertBefore(other, ref) {
         this.element.insertBefore(other, ref);
+	}
+	
+	insertAfter(other, ref) {
+		if (ref.nextSibling)
+			this.insertBefore(other, ref.nextSibling)
+		else this.appendChild(other);
     }
 
     remove() {
@@ -213,6 +231,11 @@ class JQueryElementImpl extends ElementImpl {
     insertBefore(other, ref) {
         const $ = require('jquery');
         $(other).insertBefore($(ref));
+	}
+	
+	insertAfter(other, ref) {
+        const $ = require('jquery');
+        $(other).insertAfter($(ref));
     }
 
     remove() {
@@ -237,6 +260,13 @@ class JQueryElementImpl extends ElementImpl {
     }
 }
 
+async function getAnimationFrame() {
+	await new Promise((resolve, reject) => {
+		window.requestAnimationFrame(() => 
+			window.requestAnimationFrame(() => resolve()));
+	});
+}
+
 /**
  * Creates a new HTML element.
  *
@@ -245,8 +275,15 @@ class JQueryElementImpl extends ElementImpl {
  */
 function createHtml(html) {
     let template = document.createElement('template');
-    template.innerHTML = html.trim();
-    return template.content.firstChild;
+	template.innerHTML = html.trim();
+
+	let children = template.content.children;
+	let ret = []; // copy children into new array
+	for (let i = 0; i < children.length; i++) {
+		ret.push(children[i]);
+	}
+
+	return ret;
 }
 
 /**
@@ -271,11 +308,11 @@ function element(e) {
         return e;
     else if (typeof e === "string")
         return new StringElementImpl(e);
-    else if (e instanceof HTMLElement)
+    else if (window && e instanceof window.Node)
         return new HTMLElementImpl(e);
-    else if (e instanceof jQuery)
+    else if (window && e instanceof window.jQuery)
         return new JQueryElementImpl(e);
     else throw "Cannot implement element " + e;
 }
 
-module.exports = { createHtml, createText, element };
+module.exports = { getAnimationFrame, createHtml, createText, element };
