@@ -1,3 +1,5 @@
+const { DataObservable } = require('../util/resolvable.js');
+
 class Render {
 
 	constructor(opts) {
@@ -18,8 +20,20 @@ class Render {
 				tempElement = await this.render(null, tempElement, component.loadingState);
 			}
 
+			// resolve critical data first
+			let data = await component.data.resolve(parentData);
+
 			// perform actual render
-			return await this.doRender(parentData, tempElement, component);
+			let element = await this.doRender(data, tempElement, component);
+
+			if (component.data instanceof DataObservable) {
+				// subscribe to observable changes
+				component.data.subscribe(async (newData) => {
+					element = await this.doRender(newData, element, component);
+				});
+			}
+
+			return element;
 		} catch (e) {
 			// fallback component (if present)
 			if (component.fallbackState)

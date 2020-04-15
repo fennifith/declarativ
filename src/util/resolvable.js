@@ -73,11 +73,13 @@ class ProxyDataObservable extends DataObservable {
 
 	constructor(value) {
 		super(value);
-		this.proxy = new Proxy(value, {
+		this.proxy = new Proxy(value || {}, {
 			set: (obj, prop, val) => {
+				this.value[prop] = val;
 				this.update(this.value);
 			},
 			deleteProperty: (obj, prop) => {
+				delete this.value[prop];
 				this.update(this.value);
 			}
 		});
@@ -87,6 +89,13 @@ class ProxyDataObservable extends DataObservable {
 
 function observe(data) {
 	return new ProxyDataObservable(data);
+}
+
+function resolvable(value) {
+	// TODO: rx support?
+	if (value instanceof DataResolvable)
+		return value;
+	else return new DataResolvable(value);
 }
 
 /**
@@ -128,4 +137,4 @@ async function forEachAsync(iterable, fun) {
         await fun(iterable[i], i);
 }
 
-module.exports = { DataResolvable, DataObservable, ProxyDataObservable, PendingTasks, forEachAsync, observe };
+module.exports = { DataResolvable, DataObservable, ProxyDataObservable, PendingTasks, forEachAsync, observe, resolvable };

@@ -283,7 +283,9 @@ function createHtml(html) {
 		ret.push(children[i]);
 	}
 
-	return ret;
+	if (ret.length > 0)
+		return ret;
+	else return [template];
 }
 
 /**
@@ -312,7 +314,9 @@ function element(e) {
         return new HTMLElementImpl(e);
     else if (window && e instanceof window.jQuery)
         return new JQueryElementImpl(e);
-    else throw "Cannot implement element " + e;
+	else if (e === null || typeof e === 'undefined')
+		return null;
+	else throw "Cannot implement element " + e;
 }
 
 module.exports = { getAnimationFrame, createHtml, createText, element };

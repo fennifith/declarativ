@@ -1,4 +1,4 @@
-const { DataResolvable, DataObservable, PendingTasks, forEachAsync } = require('./util/resolvable.js');
+const { DataResolvable, DataObservable, PendingTasks, resolvable } = require('./util/resolvable.js');
 const { escapeHtml } = require('./util/html.js');
 const { DOMRender } = require('./render/dom-render.js');
 const { StringRender } = require('./render/string-render.js');
@@ -38,14 +38,29 @@ class Node {
     }
 
     withChildrenArray(children) {
-        let node = this.clone();
-        node.children = children.flat(Infinity).map((child) => value(child));
+		let node = this.clone();
+
+		function flatten(array) {
+			if (Array.prototype.flat)
+				return array.flat(Infinity);
+			else {
+				const arr = [];
+				array.forEach((i) => {
+					if (Array.isArray(i))
+						arr = arr.concat(flatten(i))
+					else arr.push(i)
+				});
+				return arr;
+			}
+		}
+
+        node.children = flatten(children).map((child) => value(child));
         return node;
     }
 
     bind(data) {
         let node = this.clone();
-        node.data = new DataResolvable(data);
+        node.data = resolvable(data);
         return node;
 	}
 	

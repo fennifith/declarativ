@@ -162,29 +162,5 @@ describe("Element Tests", () => {
 				).bind(["a", "b", "c"]).renderString()
 			).to.be.equal("<p><span>a</span><span>b</span><span>c</span></p>");
 		});
-
-		it("checks conditions with when()", async function() {
-			expect(
-				await el.p(
-					util.when(true, "yep")
-				).renderString()
-			).to.be.equal("<p>yep</p>");
-		});
-
-		it("defaults to fallback with failing when()", async function() {
-			expect(
-				await el.p(
-					util.when(false, "yep").otherwise("nope")
-				).renderString()
-			).to.be.equal("<p>nope</p>");
-		});
-
-		it("handles delayed/bound data correctly in when() statements", async function() {
-			expect(
-				await el.p(
-					util.when((b) => b, "yep").otherwise("nope")
-				).bind(true).renderString()
-			).to.be.equal("<p>yep</p>");
-		});
 	});
 });

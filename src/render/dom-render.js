@@ -16,10 +16,7 @@ class DOMRender extends Render {
 	 * @param {Component} component - The component to start the render at.
 	 * @return {*} The rendered item.
 	 */
-	async doRender(parentData, tempElement, component) {
-		// resolve critical data first
-		let data = await component.data.resolve(parentData);
-
+	async doRender(data, tempElement, component) {
         // create basic html
         let innerHtml = "";
         let components = {};
