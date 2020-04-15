@@ -6,9 +6,9 @@
 <body>
 <div id="render-target"></div>
 <script type="text/javascript" src="https://unpkg.com/jquery@3.3.1/dist/jquery.min.js"></script>
-<script type="text/javascript" src="https://unpkg.com/declarativ@0.0.8/dist/declarativ.js"></script>
+<script type="text/javascript" src="https://unpkg.com/declarativ@0.1.4/dist/declarativ.js"></script>
 <script>
-    const { renderElement, elements: { div, h1, h2, h3, p, a, img, ul, li } } = declarativ;
+    const { div, h1, h2, h3, p, a, img, ul, li } = declarativ.elements;
 
     // This example shows some of the things possible with the data handling functions
     // described in https://github.com/fennifith/declarativ#handling-data
@@ -37,31 +37,30 @@
         }, 3000);
     });
 
-    renderElement(
-        $("#render-target"),
+    div(
+        h1("Repository Information"),
         div(
-            h1("Repository Information"),
-            div(
-                h3((repo) => repo.full_name),
-                p((repo) => repo.description),
-                a("View on GitHub").attr("href", (repo) => repo.html_url)
-            ).bind(repoData),
-            h2("Author"),
-            div(
-                img().attr("src", (user) => user.avatar_url),
-                h3((user) => `${user.name} (@${user.login})`),
-                p((user) => user.bio),
-                ul(
-                    li(
-                        a("View on GitHub").attr("href", (user) => user.html_url)
-                    ),
-                    li(
-                        a("Open blog").attr("href", (user) => user.blog)
-                    )
+            h3((repo) => repo.full_name),
+            p((repo) => repo.description),
+            a("View on GitHub").attr("href", (repo) => repo.html_url)
+        ).bind(repoData),
+        h2("Author"),
+        div(
+            img().attr("src", (user) => user.avatar_url),
+            h3((user) => `${user.name} (@${user.login})`),
+            p((user) => user.bio),
+            ul(
+                li(
+                    a("View on GitHub").attr("href", (user) => user.html_url)
+                ),
+                li(
+                    a("Open blog").attr("href", (user) => user.blog)
                 )
-            ).bind(userData)
-        )
-    );
+            )
+        ).whenLoading(
+			p("Fetching info from GitHub API, please wait...")
+		).bind(userData)
+    ).render($("#render-target"));
 </script>
 </body>
 </html>

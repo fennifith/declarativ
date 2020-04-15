@@ -14,20 +14,14 @@ container(
 )
 ```
 
-## Examples
-
-- [Basic](./examples/basic.html)
-- [Data Binding](./examples/binding.html)
-- [Templating](./examples/templates.html)
-
 ## Installation
 
-**Note:** although this library can and does use it, it _does not_ depend on jQuery. It will behave the same regardless of whether it is passed an unwrapped HTMLElement or a jQuery class. This is because of _perplexed kittens_ and [_fairy dust_](./src/util/dom-wrapper.js).
+**Note:** although this library can and does use it, it _does not_ depend on jQuery. It will behave the same regardless of whether it is passed an unwrapped HTMLElement or a jQuery class. This is because of _perplexed kittens_ and [_fairy dust_](https://github.com/fennifith/declarativ/blob/master/src/util/dom-wrapper.js).
 
 #### Script Tag
 
 ```html
-<script type="text/javascript" src="https://unpkg.com/declarativ@0.0.8/dist/declarativ.js"></script>
+<script type="text/javascript" src="https://unpkg.com/declarativ@0.1.4/dist/declarativ.js"></script>
 ```
 
 (the module will be included in the global scope as the `declarativ` variable)
@@ -62,13 +56,15 @@ let components = div(
 );
 ```
 
-After defining your component tree, it can be placed on the DOM by either calling the `render` or `renderElement` functions. Calling `render` simply returns the rendered jQuery element, but `renderElement` accepts a second "element" argument which the rendered content will be placed inside.
+After defining your component tree, it can be placed on the DOM by either calling the `render` or `renderString` functions. Calling `render` will place them inside whatever element you pass as its argument, while `renderString` simply returns their HTML representation.
 
 ```js
-declarativ.renderElement($("#content"), components).then(() => {
+components.render($("#content")).then(() => {
     console.log("Elements rendered!");
 });
 ```
+
+Working examples can be found in the [examples](https://github.com/fennifith/declarativ/tree/master/docs/examples/) folder.
 
 ### Promises
 

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Basic - Declarativ Examples</title>
+</head>
+<body>
+<div id="render-target"></div>
+<script type="text/javascript" src="https://unpkg.com/jquery@3.3.1/dist/jquery.min.js"></script>
+<script type="text/javascript" src="https://unpkg.com/declarativ@0.1.4/dist/declarativ.js"></script>
+<script>
+    const { observe, elements: { div, p, button }, util } = declarativ;
+
+	const firstObservable = observe({ count: 1 });
+	const secondObservable = observe({});
+	
+	div(
+		p((d) => `The current count is ${d.count}.`).bind(firstObservable),
+		button("Increase Count").on("click", () => {
+			// this is only slightly contrived; values need to be referenced
+			// through "data.proxy" to have an effect... not exactly ideal.
+			firstObservable.proxy.count++;
+		}),
+		p(
+			(d) => d && d.number
+				? `Your lucky number is ${d.number}!`
+				: "Press the button for a lucky number!"
+		).bind(secondObservable),
+		button("Next Lucky Number").on("click", () => {
+			// if the first syntax is a bit weird, this might seem a bit more
+			// intuitive for other use cases
+			secondObservable.update({ number: Math.floor(Math.random() * 99) });
+		})
+    ).render($("#render-target"));
+</script>
+</body>
+</html>

@@ -6,32 +6,30 @@
 <body>
     <div id="render-target"></div>
     <script type="text/javascript" src="https://unpkg.com/jquery@3.3.1/dist/jquery.min.js"></script>
-    <script type="text/javascript" src="https://unpkg.com/declarativ@0.0.8/dist/declarativ.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/declarativ@0.1.4/dist/declarativ.js"></script>
     <script>
         const { renderElement, elements: { div, p, button, hr, article } } = declarativ;
 
         // lorem ipsum Promise (async example)
         let lorem = new Promise((resolve, reject) => {
             setTimeout(() => {
+				console.log("resolving timeout...");
                 resolve([
                     "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam fermentum posuere euismod. Aliquam ultricies, libero cursus sollicitudin egestas, diam tortor molestie tortor, a pellentesque tellus libero id lectus.",
                     "Integer sed urna at felis pretium elementum. Integer sed turpis vehicula, consectetur turpis non, fringilla quam. Nullam elementum quis enim vel venenatis. Phasellus purus turpis, pellentesque congue fermentum sed, sollicitudin et magna.",
-                    "Nullam quis tellus quis enim dapibus cursus in ut tortor. Cras et nisl augue. Sed tellus ipsum, posuere quis feugiat eget, bibendum id eros. Fusce cursus, metus ac aliquam mollis, orci purus sodales erat, vitae cursus urna elit sed arcu.",
+                    "Nullam quis tellus quis enim dapibus cursus in ut tortor. Cras et nisl augue. Sed tellus ipsum, posuere quis feugiat eget, bibendum id eros. Fusce cursus, metus ac aliquam mollis, orci purus sodales erat, vitae cursus urna elit sed arcu."
                 ]);
             }, 2500);
         });
 
-        renderElement(
-            $("#render-target"),
-            div(
-                p("Hello!"),
-                button("Click me!").on("click", () => alert("Hello!")),          // set event listeners (this is literally just passed to the element)
-                hr(),
-                article().bind(lorem).forEach(                                   // data can be bound to a Promised value - the branch waits for it to resolve before rendering
-                    p((data) => data)                                            // elements can be repeated for each item in a bound iterable (the array of lorem ipsum paragraphs)
-                )
-            )
-        );
+        div(
+            p("Hello!"),
+            button("Click me!").on("click", () => alert("Hello!")),          // set event listeners (this is literally just passed to the element)
+			hr(),
+			lorem.then((array) => article(
+				array.map(text => p(text))
+			))
+        ).render($("#render-target"));
     </script>
 </body>
 </html>
