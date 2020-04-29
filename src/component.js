@@ -30,7 +30,7 @@ class Node {
 		this.children = (children || []).map((child) => value(child));
 		this.fallbackState = null;
 		this.loadingState = null;
-        this.data = new DataResolvable((parentData) => parentData);
+        this.data = null;
     }
 
     withChildren(...children) {
@@ -85,7 +85,7 @@ class Node {
     }
 
     isBlocking() {
-        return this.data.isBlocking();
+        return this.data && this.data.isBlocking();
     }
 
     /**

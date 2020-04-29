@@ -2,6 +2,8 @@ const { Render } = require('./render.js');
 const { forEachAsync } = require('../util/resolvable.js');
 const dom = require('../util/dom-wrapper.js');
 
+let nodeCount = 0;
+
 class DOMRender extends Render {
 
 	constructor(opts) {
@@ -11,7 +13,7 @@ class DOMRender extends Render {
 	/**
 	 * Perform a recursive render... thing...
 	 * 
-	 * @param {*} parentData - The current data object to bind to components.
+	 * @param {*} data - The current data object to bind to components.
 	 * @param {HTMLElement|ElementImpl?} tempElement - The element/object that components should replace.
 	 * @param {Component} component - The component to start the render at.
 	 * @return {*} The rendered item.
@@ -24,7 +26,7 @@ class DOMRender extends Render {
 			if (typeof child === "string") {
 				innerHtml += child;
 			} else {
-            	let id = `decl-${Math.floor(Math.random() * 99999)}-${index}`;
+            	let id = `decl-${nodeCount++}-${index}`;
 				innerHtml += `<template id="${id}"></template>`;
 				components[id] = child;
 			}
@@ -47,9 +49,6 @@ class DOMRender extends Render {
 				dom.element(elements[0].parentNode).insertAfter(elements[i], elements[i-1]);
 			}
 		}
-
-		// wait for DOM render/tick
-		await dom.getAnimationFrame();
 
         // render / await child nodes
         await Promise.all(Object.keys(components).map(async (id) => {

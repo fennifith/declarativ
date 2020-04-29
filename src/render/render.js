@@ -21,7 +21,7 @@ class Render {
 			}
 
 			// resolve critical data first
-			let data = await component.data.resolve(parentData);
+			let data = component.data ? await component.data.resolve(parentData) : null;
 
 			// perform actual render
 			let element = await this.doRender(data, tempElement, component);
