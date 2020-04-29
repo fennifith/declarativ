@@ -6,20 +6,22 @@
 <body>
 <div id="render-target"></div>
 <script type="text/javascript" src="https://unpkg.com/jquery@3.3.1/dist/jquery.min.js"></script>
-<script type="text/javascript" src="https://unpkg.com/declarativ@0.1.4/dist/declarativ.js"></script>
+<script type="text/javascript" src="https://unpkg.com/declarativ@0.1.5/dist/declarativ.js"></script>
 <script>
-    const { wrapCompose, compose, renderElement, elements: { div, h1, h2, p, a, hr, article } } = declarativ;
+    const { wrapCompose, compose, renderElement, elements: { div, h1, h2, p, a, hr, article }, util } = declarativ;
 
     function blogPost(title, body) {
         return article(
             h2(title),
             p(body)
         );
-    }
-
-    const bigHeader = wrapCompose(h1().attr("style", "font-size: 3em;"));
-
+	}
+	
+	// .compose creates a component from an html string template
 	const center = compose((inner) => `<center>${inner}</center>`);
+
+	// .wrapCompose wraps an existing declarativ component as a function
+    const bigHeader = wrapCompose(h1().attr("style", "font-size: 3em;"));
 	
 	div(
         center(
@@ -32,8 +34,9 @@
             [
                 "The cream. I just love the cream. I can't live without it. It consumes me. ",
                 a("Look at this cream.").attr("href", "https://en.wikipedia.org/wiki/Cream_tea#/media/File:Cornish_cream_tea_2.jpg")
-            ]
-        )
+			]
+		),
+		util.html("&amp;") // the "html" util creates a component from an unescaped HTML string
     ).render($("#render-target"));
 </script>
 </body>
