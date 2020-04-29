@@ -26,7 +26,7 @@ container(
 #### Script Tag
 
 ```html
-<script type="text/javascript" src="https://unpkg.com/declarativ@0.1.4/dist/declarativ.js"></script>
+<script type="text/javascript" src="https://unpkg.com/declarativ@0.1.5/dist/declarativ.js"></script>
 ```
 
 (the module will be included in the global scope as the `declarativ` variable)
@@ -71,22 +71,34 @@ components.render($("#content")).then(() => {
 
 Working examples can be found in the [examples](../../tree/master/docs/examples/) folder.
 
-### Promises
+### Promises & Asynchronicity
 
-Promises can be mixed in or bound to components to pass data to them, and the component will wait for them to resolve before rendering. Because inner components depend on their parent nodes to render, higher components will render first, and only the bound component and inner nodes will wait for the Promise.
+Promises can be mixed in with components, and declarativ will wait for them to resolve before processing the result.
+
+```js
+p(
+  "Everything in this example ",
+  new Promise((resolve) => {
+    setTimeout(() => resolve("will all render "), 1000);
+  }),
+  new Promise((resolve) => {
+    setTimeout(() => resolve("at the exact same "), 2000);
+  }),
+  "time!"
+)
+```
+
+This happens a bit differently when using the `.bind` method; components that are unbound will render first, and any children within a bound component will wait for its promise to resolve before being processed.
 
 ```js
 div(
   p("This will render first."),
-  p(new Promise((resolve) => {
-    setTimeout(() => resolve("This will render second."), 1000);
+  p("This will render second.").bind(new Promise((resolve) => {
+    setTimeout(() => resolve(), 1000);
   })),
-  p(
-    new Promise((resolve) => {
-      setTimeout(() => resolve("This will render last..."), 2000);
-    }),
-    " but not this!"
-  )
+  p("This will render last.").bind(new Promise((resolve) => {
+    setTimeout(() => resolve("at the exact same"), 2000);
+  }))
 )
 ```
 
@@ -109,7 +121,7 @@ div(
 
 Okay, a lot is happening here. I'll slow down and explain.
 
-The `bind` function allows you to specify a set of data to be passed to other parts of a component - and extends upon the types of nodes that can be placed inside it. Because the paragraph elements inside the div are not bound to any data, they inherit the Promise that is bound to their parent. The nodes inside of the paragraph elements are then specified as a function of the resolved data, returning the text to render.
+The `bind` function _also_ allows you to specify a set of data to be passed to other parts of a component - and extends upon the types of nodes that can be placed inside it. Because the paragraph elements inside the div are not bound to any data, they inherit the Promise that is bound to their parent. The nodes inside of the paragraph elements are then specified as a function of the resolved data, returning the text to render.
 
 A more complex data binding situation based off the GitHub API can be found in [examples/binding.html](./docs/examples/binding.html).
 
