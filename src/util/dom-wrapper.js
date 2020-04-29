@@ -277,7 +277,7 @@ function createHtml(html) {
     let template = document.createElement('template');
 	template.innerHTML = html.trim ? html.trim() : html;
 
-	let children = template.content.children;
+	let children = template.content.childNodes;
 	let ret = []; // copy children into new array
 	for (let i = 0; i < children.length; i++) {
 		ret.push(children[i]);

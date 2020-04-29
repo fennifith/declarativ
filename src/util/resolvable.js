@@ -27,9 +27,9 @@ class DataResolvable {
         // I'm not entirely sure why this happens. Everything seems to work fine as it is, though, so I'll just leave it alone.
 
         if (this.value instanceof Promise) {
-            return this.value = await this.value;
+            return await this.value;
         } else if (typeof this.value === 'function') {
-            return this.value = this.value(data);
+            return this.value(data);
         } else return this.value;
     }
 }

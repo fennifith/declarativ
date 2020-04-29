@@ -25,6 +25,20 @@ function value(variable) {
 	else return variable;
 }
 
+function flattenArray(array) {
+	if (Array.prototype.flat)
+		return Object.values(array).flat(Infinity);
+	else {
+		const arr = [];
+		Object.values(array).forEach((i) => {
+			if (Array.isArray(i))
+				arr = arr.concat(flattenArray(i))
+			else arr.push(i)
+		});
+		return arr;
+	}
+}
+
 class Node {
     constructor(children) {
 		this.children = (children || []).map((child) => value(child));
@@ -39,22 +53,7 @@ class Node {
 
     withChildrenArray(children) {
 		let node = this.clone();
-
-		function flatten(array) {
-			if (Array.prototype.flat)
-				return array.flat(Infinity);
-			else {
-				const arr = [];
-				array.forEach((i) => {
-					if (Array.isArray(i))
-						arr = arr.concat(flatten(i))
-					else arr.push(i)
-				});
-				return arr;
-			}
-		}
-
-        node.children = flatten(children).map((child) => value(child));
+        node.children = flattenArray(children).map((child) => value(child));
         return node;
     }
 
@@ -113,18 +112,19 @@ class Node {
     async resolveChildren(data) {
         let children = [];
 		
-		let arr = Object.values(this.children);
+		let arr = flattenArray(this.children);
 		for (let i = 0; i < arr.length; i++) {
 			let value = arr[i];
 			if (arr[i] instanceof DataResolvable) {
-				if (arr.length == 1) // await promises only if they are an only child
-					value = await value.resolve(data);
-				else value = value.resolve(data);
+				value = await value.resolve(data);
 			}
 
-			let childNode = node(value);
-			if (childNode)
-				children.push(childNode);
+			if (value instanceof Array) {
+				// flatten inner arrays (avoid creating unnecessary nodes)
+				flattenArray(value).forEach((item) => {
+					children.push(node(item));
+				});
+			} else children.push(node(value));
 		}
 
         return children;
