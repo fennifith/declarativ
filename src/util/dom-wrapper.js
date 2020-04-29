@@ -275,7 +275,7 @@ async function getAnimationFrame() {
  */
 function createHtml(html) {
     let template = document.createElement('template');
-	template.innerHTML = html.trim();
+	template.innerHTML = html.trim ? html.trim() : html;
 
 	let children = template.content.children;
 	let ret = []; // copy children into new array
