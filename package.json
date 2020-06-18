@@ -2,13 +2,15 @@
   "name": "declarativ",
   "version": "0.1.5",
   "description": "This is definitely not JSX.",
-  "main": "src/index.js",
+  "module": "dist/index.js",
+  "main": "dist/declarativ.min.js",
+  "types": "types/index.d.ts",
   "files": [
     "README.md",
     "LICENSE",
     "package.json",
-    "src/*",
-    "dist/declarativ.js"
+    "dist/*",
+    "types/*"
   ],
   "scripts": {
     "test": "mocha"
@@ -17,7 +19,7 @@
     "type": "git",
     "url": "git+https://github.com/fennifith/declarativ.git"
   },
-  "author": "James Fenn <18jafenn90@gmail.com> (https://jfenn.me/)",
+  "author": "James Fenn <me@jfenn.me> (https://jfenn.me/)",
   "license": "MPL-2.0",
   "bugs": {
     "url": "https://github.com/fennifith/declarativ/issues"
@@ -29,7 +31,9 @@
   "devDependencies": {
     "chai": "^4.2.0",
     "mocha": "^6.2.0",
-    "webpack": "^4.39.3",
+    "ts-loader": "^7.0.5",
+    "typescript": "^3.9.5",
+    "webpack": "^4.43.0",
     "webpack-cli": "^3.3.7"
   }
 }

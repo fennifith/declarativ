@@ -1,4 +1,4 @@
-function escapeHtml(str) {
+export function escapeHtml(str: string) : string {
     return str
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
@@ -6,5 +6,3 @@ function escapeHtml(str) {
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
 }
-
-module.exports = { escapeHtml };

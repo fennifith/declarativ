@@ -1,18 +1,31 @@
-.PHONY: all install build test serve
+.PHONY: all install build-dev build test serve clean
 
-all: test build
+NPM := pnpm
+ifeq (, $(shell which pnpm))
+NPM = npm
+endif
+
+all: test build-dev
 
 install: package-install.lock
 
 package-install.lock: package.json
-	npm install
+	${NPM} install
 	touch package-install.lock
 
-build: install
+build-dev: install
 	webpack-cli --config webpack.config.js
 
-test: install
-	npm test
+build: install
+	webpack-cli --mode=production --config webpack.config.js
 
-serve: install build
+test: install
+	${NPM} test
+
+serve: install build-dev
 	http-server
+
+clean:
+	rm -rf dist/
+	rm -rf node_modules/
+	rm -f package-install.lock
