@@ -29,8 +29,8 @@ module.exports = (env, argv) => [
 	},
 	plugins: [
 		new DeclarationBundlerPlugin({
-			moduleName: 'declarativ',
-			out: 'index.d.ts'
+			moduleName: "declarativ",
+			out: "./types.d.ts"
 		})
 	]
 }));

@@ -4,13 +4,12 @@
 	"description": "This is definitely not JSX.",
 	"module": "dist/index.js",
 	"main": "dist/declarativ.min.js",
-	"types": "types/index.d.ts",
+	"types": "dist/types.d.ts",
 	"files": [
 		"README.md",
 		"LICENSE",
 		"package.json",
-		"dist/*",
-		"types/*"
+		"dist/*"
 	],
 	"scripts": {
 		"test": "env TS_NODE_PROJECT=\"tsconfig.test.json\" mocha -r ts-node/register src/*.test.ts src/**/*.test.ts"
