@@ -1,5 +1,5 @@
 /**
- * Wraps jQuery / DOM functions to abstract them
+ * Wraps DOM functions to abstract them
  * from the rest of the library.
  *
  * @module dom/dom-wrapper
@@ -10,112 +10,96 @@
  *
  * @class ElementImpl
  */
-class ElementImpl {
-    constructor(element) {
-        this.element = element;
+export abstract class ElementImpl<E> {
+
+	element: E
+
+    constructor(element: E) {
+		this.element = element;
     }
 
-    attr(name, value) {
-        if (value)
-            this.setAttr(name, value);
-        else return this.getAttr(name);
+    attr(name: string, value?: string) : string | null {
+        if (value) {
+			this.setAttr(name, value);
+			return value;
+		} else return this.getAttr(name);
     }
 
-    getAttr(name) {
-        throw "No getAttr implementation";
-    }
+    abstract getAttr(name: string) : string | null
 
-    setAttr(name, value) {
-        throw "No setAttr implementation";
-    }
+    abstract setAttr(name: string, value: string) : void
 
-    get className() {
+    get className() : string | null {
         return this.getClassName();
     }
 
-    set className(value) {
-        this.setClassName(value);
+    set className(value: string | null) {
+        this.setClassName(value || "");
     }
 
-    getClassName() {
+    getClassName() : string | null {
         return this.getAttr("class");
     }
 
-    setClassName(value) {
+    setClassName(value: string) {
         this.setAttr("class", value);
     }
 
-    on(event, fun) {
-        throw "No onEvent implementation";
-    }
+    abstract on(event: string, callback: (event: Event) => void) : void
 
     /**
      * Inserts one element before another inside
      * of the element that it is called upon.
      *
-     * @param {HTMLElement|jQuery} other    The element to insert
-     * @param {HTMLElement|jQuery} ref      The reference/index element to insert
+     * @param {HTMLElement} other    The element to insert
+     * @param {HTMLElement} ref      The reference/index element to insert
      *                                      `other` before.
      */
-    insertBefore(other, ref) {
-        throw "No insertBefore implementation";
-	}
+    abstract insertBefore(other: E, ref: E) : void
 	
 	/**
      * Inserts one element after another inside
      * of the element that it is called upon.
      *
-     * @param {HTMLElement|jQuery} other    The element to insert
-     * @param {HTMLElement|jQuery} ref      The reference/index element to insert
+     * @param {HTMLElement} other    The element to insert
+     * @param {HTMLElement} ref      The reference/index element to insert
      *                                      `other` after.
      */
-    insertAfter(other, ref) {
-        throw "No insertAfter implementation";
-    }
+    abstract insertAfter(other: E, ref: E) : void
 
     /**
      * Remove the element from the DOM.
      */
-    remove() {
-        throw "No remove implementation";
-    }
+    abstract remove() : void
 
     /**
      * Replace the element with another.
      *
-     * @param {HTMLElement|jQuery} other        The element to replace it with.
-     * @param {HTMLElement|jQuery?} parent      The parent element to replace inside.
+     * @param {HTMLElement} other        The element to replace it with.
+     * @param {HTMLElement?} parent      The parent element to replace inside.
      */
-    replaceWith(other, parent) {
-        throw "No replaceWith implementation"
-    }
+    abstract replaceWith(other: E, parent?: E) : void
 
     /**
      * Find a specific element inside of another.
      *
      * @param {string} selector                 The selector string to query.
      */
-    find(selector) {
-        throw "No find implementation"
-    }
+    abstract find(selector: string) : E|null
 
     /**
      * Append a child node to the current
      *
-     * @param {HTMLElement|jQuery} child        The node to append.
+     * @param {HTMLElement} child        The node to append.
      */
-    appendChild(child) {
-        throw "No appendChild implementation"
-    }
+    abstract appendChild(child: E) : void
 
     /**
      * Clear all child nodes from the element.
      */
-    empty() {
-        throw "No clear implementation"
-    }
+    abstract empty() : void
 
-    get() {
+    get() : E {
         return this.element;
     }
 }
@@ -126,21 +110,56 @@ class ElementImpl {
  *
  * @class StringElementImpl
  */
-class StringElementImpl extends ElementImpl {
-    constructor(element) {
+class StringElementImpl extends ElementImpl<string> {
+
+	attrs: { [key: string]: string }
+
+    constructor(element: string) {
         super(element);
         this.attrs = {};
     }
 
-    setAttr(name, value) {
+    setAttr(name: string, value: string) {
         this.attrs[name] = value;
     }
 
-    getAttr(name) {
+    getAttr(name: string) : string {
         return this.attrs[name];
-    }
+	}
 
-    get() {
+	on(event: string, callback: (event: Event) => void) {
+		throw "No .on implementation!";
+	}
+
+	find(selector: string): string {
+		throw "No .find implementation!";
+	}
+	
+	appendChild(element: string) {
+		throw "No .appendChild implementation!";
+	}
+
+    insertBefore(other: string, ref: string) : void {
+		throw "No .insertBefore implementation!";
+	}
+	
+    insertAfter(other: string, ref: string) : void {
+		throw "No .insertAfter implementation!";
+	}
+
+	remove() {
+		throw "No .remove implementation!";
+	}
+
+	replaceWith(other: string, parent?: string) : void {
+		throw "No .replaceWith implementation!";
+	}
+
+	empty() {
+		throw "No .empty implementation!";
+	}
+
+    get() : string {
         let index = this.element.indexOf(">");
         return this.element.slice(0, index)
             + Object.keys(this.attrs).map((key) => ` ${key}="${this.attrs[key]}"`)
@@ -153,28 +172,29 @@ class StringElementImpl extends ElementImpl {
  *
  * @class HTMLElementImpl
  */
-class HTMLElementImpl extends ElementImpl {
-    constructor(element) {
+class HTMLElementImpl extends ElementImpl<HTMLElement> {
+
+    constructor(element: HTMLElement) {
         super(element);
     }
 
-    setAttr(name, value) {
+    setAttr(name: string, value: string) {
         this.element.setAttribute(name, value);
     }
 
-    getAttr(name) {
+    getAttr(name: string) : string | null {
         return this.element.getAttribute(name);
     }
 
-    on(event, fun) {
-        this.element.addEventListener(event, fun);
+    on(event: string, callback: (e: Event) => void) {
+        this.element.addEventListener(event, callback);
     }
 
-    insertBefore(other, ref) {
+    insertBefore(other: HTMLElement, ref: Node) {
         this.element.insertBefore(other, ref);
 	}
 	
-	insertAfter(other, ref) {
+	insertAfter(other: HTMLElement, ref: Node) {
 		if (ref.nextSibling)
 			this.insertBefore(other, ref.nextSibling)
 		else this.appendChild(other);
@@ -184,7 +204,7 @@ class HTMLElementImpl extends ElementImpl {
         this.element.remove();
     }
 
-    replaceWith(other, parent) {
+    replaceWith(other: HTMLElement, parent: HTMLElement) {
         if (this.element.replaceWith)
             this.element.replaceWith(other);
         else if (parent)
@@ -192,11 +212,11 @@ class HTMLElementImpl extends ElementImpl {
         else throw "Cannot replace element; no parent defined.";
     }
 
-    find(selector) {
+    find(selector: string): HTMLElement | null {
         return this.element.querySelector(selector);
     }
 
-    appendChild(child) {
+    appendChild(child: HTMLElement) {
         this.element.appendChild(child);
     }
 
@@ -206,61 +226,7 @@ class HTMLElementImpl extends ElementImpl {
     }
 }
 
-/**
- * Implementation for jQuery elements.
- *
- * @class JQueryElementImpl
- */
-class JQueryElementImpl extends ElementImpl {
-    constructor(element) {
-        super(element);
-    }
-
-    setAttr(name, value) {
-        this.element.attr(name, value);
-    }
-
-    getAttr(name) {
-        return this.element.attr(name);
-    }
-
-    on(event, fun) {
-        this.element.on(event, fun);
-    }
-
-    insertBefore(other, ref) {
-        const $ = require('jquery');
-        $(other).insertBefore($(ref));
-	}
-	
-	insertAfter(other, ref) {
-        const $ = require('jquery');
-        $(other).insertAfter($(ref));
-    }
-
-    remove() {
-        this.element.remove();
-    }
-
-    replaceWith(other) {
-        this.element.replaceWith($(other));
-    }
-
-    find(selector) {
-        return this.element.find(selector);
-    }
-
-    appendChild(child) {
-        const $ = require('jquery');
-        this.element.append($(child));
-    }
-
-    empty() {
-        this.element.empty();
-    }
-}
-
-async function getAnimationFrame() {
+export async function getAnimationFrame() {
 	await new Promise((resolve, reject) => {
 		window.requestAnimationFrame(() => 
 			window.requestAnimationFrame(() => resolve()));
@@ -273,7 +239,7 @@ async function getAnimationFrame() {
  * @param html              The HTML string to parse.
  * @returns {HTMLElement}     The root element of the created HTML.
  */
-function createHtml(html) {
+export function createHtml(html: string) {
     let template = document.createElement('template');
 	template.innerHTML = html.trim ? html.trim() : html;
 
@@ -294,7 +260,7 @@ function createHtml(html) {
  * @param str       The string to create.
  * @returns {Text}  A created DOM node.
  */
-function createText(str) {
+export function createText(str: string): Text {
     return document.createTextNode(str);
 }
 
@@ -302,21 +268,17 @@ function createText(str) {
  * Provides an implementation of basic DOM functions for a
  * specified element.
  *
- * @param {HTMLElementImpl|HTMLElement|jQuery|string} e        The element to provide an implementation for.
+ * @param {HTMLElementImpl|HTMLElement|string} e        The element to provide an implementation for.
  * @returns {ElementImpl}
  */
-function element(e) {
+export function element<T>(e: T) : ElementImpl<any> | null {
     if (e instanceof ElementImpl)
         return e;
     else if (typeof e === "string")
-        return new StringElementImpl(e);
-    else if (window && e instanceof window.Node)
+        return new StringElementImpl(`${e}`);
+    else if (e instanceof HTMLElement)
         return new HTMLElementImpl(e);
-    else if (window && e instanceof window.jQuery)
-        return new JQueryElementImpl(e);
 	else if (e === null || typeof e === 'undefined')
 		return null;
 	else throw "Cannot implement element " + e;
 }
-
-module.exports = { getAnimationFrame, createHtml, createText, element };

@@ -1,8 +1,12 @@
-const { DataObservable } = require('../util/resolvable.js');
+import { Component, Element } from "../component";
+import { DataObservable, resolve } from '../util/resolvable';
 
-class Render {
+export interface RenderOpts {
+}
 
-	constructor(opts) {
+export abstract class Render<E> {
+
+	constructor(opts?: RenderOpts) {
 		// TODO: potential "strict" opt (don't catch errors)
 	}
 
@@ -13,11 +17,11 @@ class Render {
 	 * @param {*} tempElement 
 	 * @param {*} component 
 	 */
-	async render(parentData, tempElement, component) {
+	async render(parentData: any, tempElement: E, component: Component) : Promise<E> {
 		try {
 			// render loading state first... (if present)
 			if (component.loadingState) {
-				tempElement = await this.render(null, tempElement, component.loadingState);
+				tempElement = await this.render(null, tempElement, await resolve(component.loadingState));
 			}
 
 			// resolve critical data first
@@ -50,10 +54,6 @@ class Render {
 	 * @param {Component} component - The component to start the render at.
 	 * @return {*} The rendered item.
 	 */
-	async doRender(parentData, tempElement, component) {
-		throw "No implementation.";
-	}
+	abstract async doRender(parentData: any, tempElement: E, component: Component) : Promise<E>
 
 }
-
-module.exports = { Render };

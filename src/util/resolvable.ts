@@ -4,6 +4,8 @@
  * @module util/resolvable
  */
 
+export type ResolvableValue<T> = T | ((data: any) => ResolvableValue<T>) | Promise<ResolvableValue<T>>
+
 /**
  * A wrapper class for data-based promises and/or arbitrary
  * values that enter a component.
@@ -11,8 +13,11 @@
  * @property {Object|function(Object): Object|Promise<Object>}
  * @class DataResolvable
  */
-class DataResolvable {
-    constructor(value) {
+export class DataResolvable<T> {
+
+	value: ResolvableValue<T>;
+
+    constructor(value: ResolvableValue<T>) {
         if (value instanceof DataResolvable)
             this.value = value.value;
         else this.value = value;
@@ -22,7 +27,7 @@ class DataResolvable {
         return this.value instanceof Promise || typeof this.value === 'function';
     }
 
-    async resolve(data) {
+    async resolve(data?: any) {
         // TODO: ideally, Promises/functions should resolve recursively (e.g. Promises that return a function), but this breaks the Component's forEach functionality.
         // I'm not entirely sure why this happens. Everything seems to work fine as it is, though, so I'll just leave it alone.
 
@@ -40,23 +45,25 @@ class DataResolvable {
  * 
  * @class DataObservable
  */
-class DataObservable extends DataResolvable {
+export class DataObservable<T> extends DataResolvable<T> {
 
-	constructor(value) {
+	listeners: ((value: T) => void)[]
+
+	constructor(value: T) {
 		super(value);
 		this.listeners = [];
 	}
 
-	update(value) {
+	update(value: T) {
 		this.value = value;
 		this.listeners.forEach((listener) => listener(this.value));
 	}
 
-	subscribe(listener) {
+	subscribe(listener: (value: T) => void) {
 		this.listeners.push(listener);
 	}
 
-	unsubscribe(listener) {
+	unsubscribe(listener: (value: T) => void) {
 		if (this.listeners.includes(listener))
 			this.listeners.splice(this.listeners.indexOf(listener), 1);
 	}
@@ -69,33 +76,44 @@ class DataObservable extends DataResolvable {
  * 
  * @class ProxyDataObservable
  */
-class ProxyDataObservable extends DataObservable {
+export class ProxyDataObservable<T> extends DataObservable<T> {
 
-	constructor(value) {
+	proxy: Proxy;
+
+	constructor(value: T) {
 		super(value);
 		this.proxy = new Proxy(value || {}, {
 			set: (obj, prop, val) => {
 				this.value[prop] = val;
 				this.update(this.value);
+				return true;
 			},
 			deleteProperty: (obj, prop) => {
 				delete this.value[prop];
 				this.update(this.value);
+				return true;
 			}
 		});
 	}
 
 }
 
-function observe(data) {
+export function observe(data: any) {
 	return new ProxyDataObservable(data);
 }
 
-function resolvable(value) {
+export function resolvable<T>(value: ResolvableValue<T>) : DataResolvable<T> | T {
 	// TODO: rx support?
-	if (value instanceof DataResolvable)
-		return value;
-	else return new DataResolvable(value);
+	if (value instanceof Promise || typeof value === 'function')
+		return new DataResolvable(value);
+	else return value;
+}
+
+export async function resolve<T>(value: ResolvableValue<T>, data?: any) : Promise<T> {
+	let obj = resolvable(value);
+	if (obj instanceof DataResolvable)
+		return await obj.resolve(data);
+	else return obj;
 }
 
 /**
@@ -104,12 +122,15 @@ function resolvable(value) {
  *
  * @class PendingTasks
  */
-class PendingTasks {
-    constructor(tasks) {
+export class PendingTasks {
+
+	tasks: ((...args: any[]) => void)[];
+
+    constructor(tasks?: PendingTasks | ((...args: any[]) => void)[]) {
         if (tasks instanceof PendingTasks)
-            this.tasks = Object.values(tasks.tasks);
+            this.tasks = tasks.tasks;
         else if (tasks instanceof Array)
-            this.tasks = Object.values(tasks);
+            this.tasks = tasks;
         else this.tasks = [];
     }
 
@@ -117,12 +138,12 @@ class PendingTasks {
         return this.tasks.length;
     }
 
-    push(fun) {
+    push(fun: (...args: any[]) => void) {
         this.tasks.push(fun);
         return this;
     }
 
-    async call(...args) {
+    async call(...args: any[]) {
         return Promise.all(
             this.tasks.map(function(fun) {
                 let ret = fun.apply(null, args);
@@ -132,9 +153,8 @@ class PendingTasks {
     }
 }
 
-async function forEachAsync(iterable, fun) {
-    for (let i in Object.values(iterable))
-        await fun(iterable[i], i);
+export async function forEachAsync<T>(iterable: T[], fun: (item: T, index: number) => void) {
+	await iterable.reduce((promise, item, index) => {
+		return promise.then(() => fun(item, index));
+	}, Promise.resolve());
 }
-
-module.exports = { DataResolvable, DataObservable, ProxyDataObservable, PendingTasks, forEachAsync, observe, resolvable };

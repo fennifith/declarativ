@@ -5,8 +5,7 @@
  * @module compose/index
  */
 
-const dom = require('./util/dom-wrapper.js');
-const { Component } = require('./component.js');
+import { Component, ResolvableNode } from './component';
 
 /**
  * Wrap a component in a composition function.
@@ -14,8 +13,8 @@ const { Component } = require('./component.js');
  * @param component                                     the component to wrap
  * @returns {function(...[Component]=): (Component|o)}  the composed function
  */
-function wrapCompose(component) {
-    return function(...children) {
+export function wrapCompose(component: Component) {
+    return function(...children: ResolvableNode[]) {
         return component.withChildrenArray(children);
     };
 }
@@ -26,9 +25,6 @@ function wrapCompose(component) {
  * @param template {function(string, Object): string}   the HTML function to template with
  * @return {function(Object): Component}                a Component function
  */
-function compose(template) {
+export function compose(template: (inner: string, data: any) => string) {
     return wrapCompose(new Component(template));
 }
-
-module.exports = {Component, wrapCompose, compose};
-

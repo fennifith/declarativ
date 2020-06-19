@@ -1,10 +1,11 @@
-const { Render } = require('./render.js');
-const { forEachAsync } = require('../util/resolvable.js');
-const dom = require('../util/dom-wrapper.js');
+import { Component } from '../component';
+import { Render, RenderOpts } from './render';
+import { forEachAsync } from '../util/resolvable';
+import { element } from '../util/dom-wrapper';
 
-class StringRender extends Render {
+export class StringRender extends Render<string> {
 
-	constructor(opts) {
+	constructor(opts?: RenderOpts) {
 		super(opts);
 	}
 
@@ -16,7 +17,7 @@ class StringRender extends Render {
 	 * @param {Component} component - The component to start the render at.
 	 * @return {String} The rendered string.
 	 */
-	async doRender(data, tempElement, component) {
+	async doRender(data: any, tempElement: string, component: Component) : Promise<string> {
 		// create basic html
 		let innerHtml = "";
 		await forEachAsync(await component.resolveChildren(data), async (child) => {
@@ -29,11 +30,9 @@ class StringRender extends Render {
  
 		// render HTML structure
 		let str = component.template(innerHtml, data);
-		let strImpl = dom.element(str);
+		let strImpl = element(str);
 		await component.tasks.call(strImpl, data);
 		return strImpl.get();
 	}
 
 }
-
-module.exports = { Render, StringRender };

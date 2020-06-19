@@ -1,18 +1,19 @@
-const expect = require('chai').expect;
+import { expect } from 'chai';
+import { escapeHtml } from './util/html';
+import { DataResolvable, PendingTasks } from './util/resolvable';
+
+import * as el from './elements';
+import * as util from './utilities';
 
 describe("Utility Functions", () => {
-    describe("HTML Utilities (util/html.js)", () => {
-        const { escapeHtml } = require('./src/util/html.js');
-
+    describe("HTML Utilities (util/html.ts)", () => {
         it("should escape HTML chars", () => {
             let htmlStr = "<script>console.log('hi!');</script>";
             expect(escapeHtml(htmlStr)).to.not.equal(htmlStr);
         });
     });
 
-    describe("DataResolvable class (util/resolvable.js)", () => {
-        const { DataResolvable } = require('./src/util/resolvable.js');
-
+    describe("DataResolvable class (util/resolvable.ts)", () => {
         it("should resolve promises", async function() {
             let data = new DataResolvable(Promise.resolve(3));
             expect(await data.resolve()).to.equal(3);
@@ -29,25 +30,22 @@ describe("Utility Functions", () => {
         });
 
         it("should pass resolved arguments through to functions", async function() {
-            let data = new DataResolvable((d) => d);
+            let data = new DataResolvable((d: any) => d);
             expect(await data.resolve(250)).to.equal(250);
         });
     });
 
-    describe("PendingTasks class (util/resolvable.js)", () => {
-        const { PendingTasks } = require('./src/util/resolvable.js');
-
+    describe("PendingTasks class (util/resolvable.ts)", () => {
         let functions = [
-            () => null,
-            () => null,
-            () => null,
-            () => null,
-            () => null,
+            (): any => null,
+            (): any => null,
+            (): any => null,
+            (): any => null,
+            (): any => null,
         ];
 
-        let tasks = new PendingTasks();
-        for (let i in functions)
-            tasks.push(i);
+		let tasks = new PendingTasks([]);
+		functions.forEach((task) => tasks.push(task));
 
         it("should have the correct length attribute", () => {
             expect(tasks.length).to.equal(functions.length);
@@ -78,9 +76,6 @@ describe("Utility Functions", () => {
 });
 
 describe("Element Tests", () => {
-	const el = require('./src/elements.js');
-	const util = require('./src/utilities.js');
-
     describe("Basic Rendering", () => {
         it("should render an empty tag", async function() {
             expect(await el.p().renderString()).to.be.equal("<p></p>");
@@ -134,7 +129,7 @@ describe("Element Tests", () => {
         it("should bind data to child functions", async function() {
             expect(
                 await el.p(
-                    (data) => data
+                    (data: any) => data
                 ).bind("Hello!").renderString()
             ).to.be.equal("<p>Hello!</p>");
         });
@@ -144,7 +139,7 @@ describe("Element Tests", () => {
                 await el.p(
                     el.span(
                         el.span(
-                            (data) => data
+                            (data: any) => data
                         )
                     )
                 ).bind("Hello!").renderString()
@@ -157,7 +152,7 @@ describe("Element Tests", () => {
 			expect(
 				await el.p(
 					util.forEach(
-						el.span(str => str)
+						el.span((str: any) => str)
 					)
 				).bind(["a", "b", "c"]).renderString()
 			).to.be.equal("<p><span>a</span><span>b</span><span>c</span></p>");

@@ -1,12 +1,13 @@
-const { Render } = require('./render.js');
-const { forEachAsync } = require('../util/resolvable.js');
-const dom = require('../util/dom-wrapper.js');
+import { Render, RenderOpts } from './render';
+import { forEachAsync } from '../util/resolvable';
+import * as dom from '../util/dom-wrapper';
+import { Component } from '../component';
 
 let nodeCount = 0;
 
-class DOMRender extends Render {
+export class DOMRender extends Render<HTMLElement> {
 
-	constructor(opts) {
+	constructor(opts?: RenderOpts) {
 		super(opts);
 	}
 
@@ -18,10 +19,10 @@ class DOMRender extends Render {
 	 * @param {Component} component - The component to start the render at.
 	 * @return {*} The rendered item.
 	 */
-	async doRender(data, tempElement, component) {
+	async doRender(data: any, tempElement: HTMLElement, component: Component) : Promise<HTMLElement> {
         // create basic html
         let innerHtml = "";
-        let components = {};
+        let components: {[id: string]: Component} = {};
 		await forEachAsync(await component.resolveChildren(data), async (child, index) => { 
 			if (typeof child === "string") {
 				innerHtml += child;
@@ -39,27 +40,29 @@ class DOMRender extends Render {
 		// call immediate tasks (attributes, etc.)
 		await component.tasks.call(elementImpl, data);
 		
-        if (tempElement) { // replace tempElement on dom
-			dom.element(tempElement).replaceWith(elements[0]);
+		let tempElementImpl = dom.element(tempElement);
+        if (tempElementImpl) { // replace tempElement on dom
+			tempElementImpl.replaceWith(elements[0]);
 			if (!elements[0].parentNode)
 				throw "No parent node on element " + elements[0];
 
 			for (let i = 1; i < elements.length; i++) {
 				// insert any additional nodes into the DOM (in case the template is weird)
-				dom.element(elements[0].parentNode).insertAfter(elements[i], elements[i-1]);
+				dom.element(elements[0].parentNode)?.insertAfter(elements[i], elements[i-1]);
 			}
 		}
 
         // render / await child nodes
         await Promise.all(Object.keys(components).map(async (id) => {
 			let temp = document.querySelector(`#${id}`);
-			if (!temp)
+			if (!temp || !(temp instanceof HTMLElement))
 				throw `couldn't find child ${id}`;
 			
 			let result = await this.render(data, temp, components[id]);
 			for (let i = 0; i < elements.length; i++) {
 				// account for stray elements in template (see large comment block below)
-				if (elements[i].id === id)
+				let element = elements[i];
+				if (element instanceof HTMLElement && element.id === id)
 					elements[i] = result;
 			}
 		}));
@@ -74,9 +77,10 @@ class DOMRender extends Render {
 		// implementation for arrays that modifies each element in the array;
 		// `element.replace(...)` would replace the first element and remove all
 		// others, etc.
-		return elements[0];
+		let ret = elements[0];
+		if (ret instanceof HTMLElement)
+			return ret;
+		else throw "Return node is not an element!";
 	}
 
 }
-
-module.exports = { Render, DOMRender };
