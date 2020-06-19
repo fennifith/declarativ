@@ -5,9 +5,9 @@
 </head>
 <body>
 <div id="render-target"></div>
-<script type="text/javascript" src="https://unpkg.com/declarativ@0.1.7/dist/declarativ.min.js"></script>
+<script type="text/javascript" src="https://unpkg.com/declarativ@0.1.8/dist/declarativ.min.js"></script>
 <script>
-	const { wrapCompose, compose, renderElement, el: { div, h1, h2, p, a, hr, article }, util } = declarativ;
+	const { wrapCompose, compose, div, h1, h2, p, a, hr, article, html } = declarativ;
 
 	function blogPost(title, body) {
 		return article(
@@ -35,7 +35,7 @@
 				a("Look at this cream.").attr("href", "https://en.wikipedia.org/wiki/Cream_tea#/media/File:Cornish_cream_tea_2.jpg")
 			]
 		),
-		util.html("&amp;") // the "html" util creates a component from an unescaped HTML string
+		html("&amp;") // the "html" utility function creates a component from an unescaped HTML string
 	).render("#render-target", { debugLogger: console.log });
 </script>
 </body>
