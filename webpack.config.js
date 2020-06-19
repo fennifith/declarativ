@@ -7,14 +7,14 @@ module.exports = (env, argv) => [
 	{ name: "declarativ.min.js", target: "umd", bundleDependencies: true },
 	{ name: "index.js", target: "commonjs2" }
 ].map(opts => ({
-    entry: './src/index.ts',
-    output: {
+	entry: './src/index.ts',
+	output: {
 		path: path.resolve(__dirname, 'dist'),
 		filename: opts.name,
 		library: 'declarativ',
 		libraryTarget: opts.target
 	},
-    externals: opts.bundleDependencies ? [] : [nodeExternals()],
+	externals: opts.bundleDependencies ? [] : [nodeExternals()],
 	module: {
 		rules: [
 			{

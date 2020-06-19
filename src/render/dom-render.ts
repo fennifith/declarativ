@@ -20,14 +20,14 @@ export class DOMRender extends Render<Node> {
 	 * @return {*} The rendered item.
 	 */
 	async doRender(data: any, tempElement: Node | null, component: Component) : Promise<Node> {
-        // create basic html
-        let innerHtml = "";
-        let components: {[id: string]: Component} = {};
+		// create basic html
+		let innerHtml = "";
+		let components: {[id: string]: Component} = {};
 		await forEachAsync(await component.resolveChildren(data), async (child, index) => { 
 			if (typeof child === "string") {
 				innerHtml += child;
 			} else {
-            	let id = `decl-${nodeCount++}-${index}`;
+				let id = `decl-${nodeCount++}-${index}`;
 				innerHtml += `<template id="${id}"></template>`;
 				components[id] = child;
 			}
@@ -35,7 +35,7 @@ export class DOMRender extends Render<Node> {
 
 		this.opts.debugLogger?.("  Resolved child elements:", innerHtml);
 
-        // render HTML structure
+		// render HTML structure
 		let elements = dom.createHtml(component.template(innerHtml, data));
 		let elementImpl = dom.element(elements[0]);
 
@@ -43,7 +43,7 @@ export class DOMRender extends Render<Node> {
 		await component.tasks.call(elementImpl, data);
 		
 		let tempElementImpl = dom.element(tempElement);
-        if (tempElementImpl) { // replace tempElement on dom
+		if (tempElementImpl) { // replace tempElement on dom
 			tempElementImpl.replaceWith(elements[0]);
 			if (!elements[0].parentNode)
 				throw "No parent node on element " + elements[0];
@@ -54,8 +54,8 @@ export class DOMRender extends Render<Node> {
 			}
 		}
 
-        // render / await child nodes
-        await Promise.all(Object.keys(components).map(async (id) => {
+		// render / await child nodes
+		await Promise.all(Object.keys(components).map(async (id) => {
 			let temp = document.querySelector(`#${id}`);
 			if (!temp || !(temp instanceof HTMLElement))
 				throw `couldn't find child ${id}`;

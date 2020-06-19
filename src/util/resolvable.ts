@@ -17,30 +17,30 @@ export class DataResolvable<T> {
 
 	value: ResolvableValue<T>;
 
-    constructor(value: ResolvableValue<T>) {
-        if (value instanceof DataResolvable)
-            this.value = value.value;
-        else this.value = value;
-    }
+	constructor(value: ResolvableValue<T>) {
+		if (value instanceof DataResolvable)
+			this.value = value.value;
+		else this.value = value;
+	}
 
-    isBlocking() {
-        return this.value instanceof Promise || typeof this.value === 'function';
-    }
+	isBlocking() {
+		return this.value instanceof Promise || typeof this.value === 'function';
+	}
 
-    async resolve(data?: any) : Promise<T> {
-        // TODO: ideally, Promises/functions should resolve recursively (e.g. Promises that return a function), but this breaks the Component's forEach functionality.
-        // I'm not entirely sure why this happens. Everything seems to work fine as it is, though, so I'll just leave it alone.
+	async resolve(data?: any) : Promise<T> {
+		// TODO: ideally, Promises/functions should resolve recursively (e.g. Promises that return a function), but this breaks the Component's forEach functionality.
+		// I'm not entirely sure why this happens. Everything seems to work fine as it is, though, so I'll just leave it alone.
 
 		const isFn = (arg: any): arg is ((arg: any) => T) => {
 			return typeof arg === 'function'
 		}
 
-        if (this.value instanceof Promise) {
-            return await this.value;
-        } else if (isFn(this.value)) {
-            return await this.value(data);
-        } else return <T> this.value;
-    }
+		if (this.value instanceof Promise) {
+			return await this.value;
+		} else if (isFn(this.value)) {
+			return await this.value(data);
+		} else return <T> this.value;
+	}
 }
 
 /**
@@ -130,31 +130,31 @@ export class PendingTasks {
 
 	tasks: ((...args: any[]) => void)[];
 
-    constructor(tasks?: PendingTasks | ((...args: any[]) => void)[]) {
-        if (tasks instanceof PendingTasks)
-            this.tasks = [...tasks.tasks];
-        else if (tasks instanceof Array)
+	constructor(tasks?: PendingTasks | ((...args: any[]) => void)[]) {
+		if (tasks instanceof PendingTasks)
+			this.tasks = [...tasks.tasks];
+		else if (tasks instanceof Array)
 			this.tasks = [...tasks];
 		else this.tasks = [];
-    }
+	}
 
-    get length() {
-        return this.tasks.length;
-    }
+	get length() {
+		return this.tasks.length;
+	}
 
-    push(fun: (...args: any[]) => void) {
-        this.tasks.push(fun);
-        return this;
-    }
+	push(fun: (...args: any[]) => void) {
+		this.tasks.push(fun);
+		return this;
+	}
 
-    async call(...args: any[]) {
-        return Promise.all(
-            this.tasks.map(function(fun) {
-                let ret = fun.apply(null, args);
-                return ret instanceof Promise ? ret : Promise.resolve();
-            })
-        );
-    }
+	async call(...args: any[]) {
+		return Promise.all(
+			this.tasks.map(function(fun) {
+				let ret = fun.apply(null, args);
+				return ret instanceof Promise ? ret : Promise.resolve();
+			})
+		);
+	}
 }
 
 export async function forEachAsync<T>(iterable: T[], fun: (item: T, index: number) => void) {

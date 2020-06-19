@@ -14,94 +14,94 @@ export abstract class ElementImpl<E> {
 
 	element: E
 
-    constructor(element: E) {
+	constructor(element: E) {
 		this.element = element;
-    }
+	}
 
-    attr(name: string, value?: string) : string | null {
-        if (value) {
+	attr(name: string, value?: string) : string | null {
+		if (value) {
 			this.setAttr(name, value);
 			return value;
 		} else return this.getAttr(name);
-    }
+	}
 
-    abstract getAttr(name: string) : string | null
+	abstract getAttr(name: string) : string | null
 
-    abstract setAttr(name: string, value: string) : void
+	abstract setAttr(name: string, value: string) : void
 
-    get className() : string | null {
-        return this.getClassName();
-    }
+	get className() : string | null {
+		return this.getClassName();
+	}
 
-    set className(value: string | null) {
-        this.setClassName(value || "");
-    }
+	set className(value: string | null) {
+		this.setClassName(value || "");
+	}
 
-    getClassName() : string | null {
-        return this.getAttr("class");
-    }
+	getClassName() : string | null {
+		return this.getAttr("class");
+	}
 
-    setClassName(value: string) {
-        this.setAttr("class", value);
-    }
+	setClassName(value: string) {
+		this.setAttr("class", value);
+	}
 
-    abstract on(event: string, callback: (event: Event) => void) : void
+	abstract on(event: string, callback: (event: Event) => void) : void
 
-    /**
-     * Inserts one element before another inside
-     * of the element that it is called upon.
-     *
-     * @param {HTMLElement} other    The element to insert
-     * @param {HTMLElement} ref      The reference/index element to insert
-     *                                      `other` before.
-     */
-    abstract insertBefore(other: E, ref: E) : void
+	/**
+	 * Inserts one element before another inside
+	 * of the element that it is called upon.
+	 *
+	 * @param {HTMLElement} other    The element to insert
+	 * @param {HTMLElement} ref      The reference/index element to insert
+	 *                                      `other` before.
+	 */
+	abstract insertBefore(other: E, ref: E) : void
 	
 	/**
-     * Inserts one element after another inside
-     * of the element that it is called upon.
-     *
-     * @param {HTMLElement} other    The element to insert
-     * @param {HTMLElement} ref      The reference/index element to insert
-     *                                      `other` after.
-     */
-    abstract insertAfter(other: E, ref: E) : void
+	 * Inserts one element after another inside
+	 * of the element that it is called upon.
+	 *
+	 * @param {HTMLElement} other    The element to insert
+	 * @param {HTMLElement} ref      The reference/index element to insert
+	 *                                      `other` after.
+	 */
+	abstract insertAfter(other: E, ref: E) : void
 
-    /**
-     * Remove the element from the DOM.
-     */
-    abstract remove() : void
+	/**
+	 * Remove the element from the DOM.
+	 */
+	abstract remove() : void
 
-    /**
-     * Replace the element with another.
-     *
-     * @param {HTMLElement} other        The element to replace it with.
-     * @param {HTMLElement?} parent      The parent element to replace inside.
-     */
-    abstract replaceWith(other: E, parent?: E) : void
+	/**
+	 * Replace the element with another.
+	 *
+	 * @param {HTMLElement} other        The element to replace it with.
+	 * @param {HTMLElement?} parent      The parent element to replace inside.
+	 */
+	abstract replaceWith(other: E, parent?: E) : void
 
-    /**
-     * Find a specific element inside of another.
-     *
-     * @param {string} selector                 The selector string to query.
-     */
-    abstract find(selector: string) : E|null
+	/**
+	 * Find a specific element inside of another.
+	 *
+	 * @param {string} selector                 The selector string to query.
+	 */
+	abstract find(selector: string) : E|null
 
-    /**
-     * Append a child node to the current
-     *
-     * @param {HTMLElement} child        The node to append.
-     */
-    abstract appendChild(child: E) : void
+	/**
+	 * Append a child node to the current
+	 *
+	 * @param {HTMLElement} child        The node to append.
+	 */
+	abstract appendChild(child: E) : void
 
-    /**
-     * Clear all child nodes from the element.
-     */
-    abstract empty() : void
+	/**
+	 * Clear all child nodes from the element.
+	 */
+	abstract empty() : void
 
-    get() : E {
-        return this.element;
-    }
+	get() : E {
+		return this.element;
+	}
 }
 
 /**
@@ -114,17 +114,17 @@ class StringElementImpl extends ElementImpl<string> {
 
 	attrs: { [key: string]: string }
 
-    constructor(element: string) {
-        super(element);
-        this.attrs = {};
-    }
+	constructor(element: string) {
+		super(element);
+		this.attrs = {};
+	}
 
-    setAttr(name: string, value: string) {
-        this.attrs[name] = value;
-    }
+	setAttr(name: string, value: string) {
+		this.attrs[name] = value;
+	}
 
-    getAttr(name: string) : string {
-        return this.attrs[name];
+	getAttr(name: string) : string {
+		return this.attrs[name];
 	}
 
 	on(event: string, callback: (event: Event) => void) {
@@ -139,11 +139,11 @@ class StringElementImpl extends ElementImpl<string> {
 		throw "No .appendChild implementation!";
 	}
 
-    insertBefore(other: string, ref: string) : void {
+	insertBefore(other: string, ref: string) : void {
 		throw "No .insertBefore implementation!";
 	}
 	
-    insertAfter(other: string, ref: string) : void {
+	insertAfter(other: string, ref: string) : void {
 		throw "No .insertAfter implementation!";
 	}
 
@@ -159,12 +159,12 @@ class StringElementImpl extends ElementImpl<string> {
 		throw "No .empty implementation!";
 	}
 
-    get() : string {
-        let index = this.element.indexOf(">");
-        return this.element.slice(0, index)
-            + Object.keys(this.attrs).map((key) => ` ${key}="${this.attrs[key]}"`)
-            + this.element.slice(index);
-    }
+	get() : string {
+		let index = this.element.indexOf(">");
+		return this.element.slice(0, index)
+			+ Object.keys(this.attrs).map((key) => ` ${key}="${this.attrs[key]}"`)
+			+ this.element.slice(index);
+	}
 }
 
 /**
@@ -174,54 +174,54 @@ class StringElementImpl extends ElementImpl<string> {
  */
 class HTMLNodeImpl extends ElementImpl<Node> {
 
-    constructor(element: Node) {
-        super(element);
-    }
+	constructor(element: Node) {
+		super(element);
+	}
 
-    setAttr(name: string, value: string) {
-        throw "No .setAttr implementation!";
-    }
+	setAttr(name: string, value: string) {
+		throw "No .setAttr implementation!";
+	}
 
-    getAttr(name: string) : string | null {
-        throw "No .getAttr implementation!";
-    }
+	getAttr(name: string) : string | null {
+		throw "No .getAttr implementation!";
+	}
 
-    on(event: string, callback: (e: Event) => void) {
-        this.element.addEventListener(event, callback);
-    }
+	on(event: string, callback: (e: Event) => void) {
+		this.element.addEventListener(event, callback);
+	}
 
-    insertBefore(other: Node, ref: Node) {
-        this.element.insertBefore(other, ref);
+	insertBefore(other: Node, ref: Node) {
+		this.element.insertBefore(other, ref);
 	}
 	
 	insertAfter(other: Node, ref: Node) {
 		if (ref.nextSibling)
 			this.insertBefore(other, ref.nextSibling)
 		else this.appendChild(other);
-    }
+	}
 
-    remove() {
-        throw "No .remove implementation!";
-    }
+	remove() {
+		throw "No .remove implementation!";
+	}
 
-    replaceWith(other: Node, parent: Node) {
-        if (parent)
-            parent.replaceChild(other, this.element);
-        else throw "Cannot replace element; no parent defined.";
-    }
+	replaceWith(other: Node, parent: Node) {
+		if (parent)
+			parent.replaceChild(other, this.element);
+		else throw "Cannot replace element; no parent defined.";
+	}
 
-    find(selector: string): Node | null {
+	find(selector: string): Node | null {
 		return null;
-    }
+	}
 
-    appendChild(child: Node) {
-        this.element.appendChild(child);
-    }
+	appendChild(child: Node) {
+		this.element.appendChild(child);
+	}
 
-    empty() {
-        while (this.element.firstChild)
-            this.element.removeChild(this.element.firstChild);
-    }
+	empty() {
+		while (this.element.firstChild)
+			this.element.removeChild(this.element.firstChild);
+	}
 }
 
 /**
@@ -231,56 +231,56 @@ class HTMLNodeImpl extends ElementImpl<Node> {
  */
 class HTMLElementImpl extends ElementImpl<HTMLElement> {
 
-    constructor(element: HTMLElement) {
-        super(element);
-    }
+	constructor(element: HTMLElement) {
+		super(element);
+	}
 
-    setAttr(name: string, value: string) {
-        this.element.setAttribute(name, value);
-    }
+	setAttr(name: string, value: string) {
+		this.element.setAttribute(name, value);
+	}
 
-    getAttr(name: string) : string | null {
-        return this.element.getAttribute(name);
-    }
+	getAttr(name: string) : string | null {
+		return this.element.getAttribute(name);
+	}
 
-    on(event: string, callback: (e: Event) => void) {
-        this.element.addEventListener(event, callback);
-    }
+	on(event: string, callback: (e: Event) => void) {
+		this.element.addEventListener(event, callback);
+	}
 
-    insertBefore(other: HTMLElement, ref: Node) {
-        this.element.insertBefore(other, ref);
+	insertBefore(other: HTMLElement, ref: Node) {
+		this.element.insertBefore(other, ref);
 	}
 	
 	insertAfter(other: HTMLElement, ref: Node) {
 		if (ref.nextSibling)
 			this.insertBefore(other, ref.nextSibling)
 		else this.appendChild(other);
-    }
+	}
 
-    remove() {
-        this.element.remove();
-    }
+	remove() {
+		this.element.remove();
+	}
 
-    replaceWith(other: HTMLElement, parent: HTMLElement) {
-        if (this.element.replaceWith)
-            this.element.replaceWith(other);
-        else if (parent)
-            parent.replaceChild(other, this.element);
-        else throw "Cannot replace element; no parent defined.";
-    }
+	replaceWith(other: HTMLElement, parent: HTMLElement) {
+		if (this.element.replaceWith)
+			this.element.replaceWith(other);
+		else if (parent)
+			parent.replaceChild(other, this.element);
+		else throw "Cannot replace element; no parent defined.";
+	}
 
-    find(selector: string): HTMLElement | null {
-        return this.element.querySelector(selector);
-    }
+	find(selector: string): HTMLElement | null {
+		return this.element.querySelector(selector);
+	}
 
-    appendChild(child: HTMLElement) {
-        this.element.appendChild(child);
-    }
+	appendChild(child: HTMLElement) {
+		this.element.appendChild(child);
+	}
 
-    empty() {
-        while (this.element.firstChild)
-            this.element.removeChild(this.element.firstChild);
-    }
+	empty() {
+		while (this.element.firstChild)
+			this.element.removeChild(this.element.firstChild);
+	}
 }
 
 export async function getAnimationFrame() {
@@ -297,7 +297,7 @@ export async function getAnimationFrame() {
  * @returns {Node[]}        The root elements of the created HTML.
  */
 export function createHtml(html: string) : Node[] {
-    let template = document.createElement('template');
+	let template = document.createElement('template');
 	template.innerHTML = html.trim ? html.trim() : html;
 
 	let children = template.content.childNodes;
@@ -318,7 +318,7 @@ export function createHtml(html: string) : Node[] {
  * @returns {Text}  A created DOM node.
  */
 export function createText(str: string): Text {
-    return document.createTextNode(str);
+	return document.createTextNode(str);
 }
 
 /**
@@ -329,11 +329,11 @@ export function createText(str: string): Text {
  * @returns {ElementImpl}
  */
 export function element<T>(e: T) : ElementImpl<any> | null {
-    if (e instanceof ElementImpl)
-        return e;
-    else if (typeof e === "string")
-        return new StringElementImpl(`${e}`);
-    else if (e instanceof HTMLElement)
+	if (e instanceof ElementImpl)
+		return e;
+	else if (typeof e === "string")
+		return new StringElementImpl(`${e}`);
+	else if (e instanceof HTMLElement)
 		return new HTMLElementImpl(e);
 	else if (e instanceof Node)
 		return new HTMLNodeImpl(e);

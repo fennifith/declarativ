@@ -10,21 +10,23 @@ import { Component, ResolvableNode } from './component';
 /**
  * Wrap a component in a composition function.
  *
- * @param component                                     the component to wrap
- * @returns {function(...[Component]=): (Component|o)}  the composed function
+ * @param {Component} component - the component to wrap
+ * @returns {function(...[ResolvableNode]): Component} - the composed function
  */
-export function wrapCompose(component: Component) {
-    return function(...children: ResolvableNode[]) {
-        return component.withChildrenArray(children);
-    };
+export function wrapCompose(component: Component) : (children: ResolvableNode[]) => Component {
+	return function(...children: ResolvableNode[]) {
+		return component.withChildrenArray(children);
+	};
 }
 
 /**
  * Shorthand for creating a new Component instance.
  *
- * @param template {function(string, Object): string}   the HTML function to template with
- * @return {function(Object): Component}                a Component function
+ * @param {function(string, any): string} template - the HTML function to template with
+ * @return {function(...[ResolvableNode]): Component} - a Component function
  */
-export function compose(template: (inner: string, data: any) => string) {
-    return wrapCompose(new Component(template));
+export function compose(template: (inner: string, data: any) => string) : (...children: ResolvableNode[]) => Component {
+	return function(...children: ResolvableNode[]) {
+		return new Component(template, children);
+	}
 }
