@@ -1,66 +1,65 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <title>Basic - Declarativ Examples</title>
+	<title>Basic - Declarativ Examples</title>
 </head>
 <body>
 <div id="render-target"></div>
-<script type="text/javascript" src="https://unpkg.com/jquery@3.3.1/dist/jquery.min.js"></script>
 <script type="text/javascript" src="https://unpkg.com/declarativ@0.1.6/dist/declarativ.min.js"></script>
 <script>
-    const { div, h1, h2, h3, p, a, img, ul, li } = declarativ.el;
+	const { div, h1, h2, h3, p, a, img, ul, li } = declarativ.el;
 
-    // This example shows some of the things possible with the data handling functions
-    // described in https://github.com/fennifith/declarativ#handling-data
-    //
-    // These data structures do exist IRL, and are taken from the GitHub API - I'm just
-    // hardcoding them here as an example.
+	// This example shows some of the things possible with the data handling functions
+	// described in https://github.com/fennifith/declarativ#handling-data
+	//
+	// These data structures do exist IRL, and are taken from the GitHub API - I'm just
+	// hardcoding them here as an example.
 
-    // the data structure to bind
-    let repoData = {
-        full_name: "fennifith/declarativ",
-        description: "This is definitely not JSX.",
-        html_url: "https://github.com/fennifith/declarativ"
-    };
+	// the data structure to bind
+	let repoData = {
+		full_name: "fennifith/declarativ",
+		description: "This is definitely not JSX.",
+		html_url: "https://github.com/fennifith/declarativ"
+	};
 
-    // another data structure to bind (but this one takes a few seconds to resolve)
-    let userData = new Promise((resolve) => {
-        setTimeout(() => {
-            resolve({
-                login: "fennifith",
-                name: "James Fenn",
-                bio: "Enjoys writing software on loud keyboards. Starts too many projects. Consumes food.",
-                avatar_url: "https://avatars1.githubusercontent.com/u/13000407?v=4",
-                html_url: "https://github.com/fennifith",
-                blog: "https://jfenn.me/"
-            });
-        }, 3000);
-    });
+	// another data structure to bind (but this one takes a few seconds to resolve)
+	let userData = new Promise((resolve) => {
+		setTimeout(() => {
+			resolve({
+				login: "fennifith",
+				name: "James Fenn",
+				bio: "Enjoys writing software on loud keyboards. Starts too many projects. Consumes food.",
+				avatar_url: "https://avatars1.githubusercontent.com/u/13000407?v=4",
+				html_url: "https://github.com/fennifith",
+				blog: "https://jfenn.me/"
+			});
+		}, 3000);
+	});
 
-    div(
-        h1("Repository Information"),
-        div(
-            h3((repo) => repo.full_name),
-            p((repo) => repo.description),
-            a("View on GitHub").attr("href", (repo) => repo.html_url)
-        ).bind(repoData),
-        h2("Author"),
-        div(
-            img().attr("src", (user) => user.avatar_url),
-            h3((user) => `${user.name} (@${user.login})`),
-            p((user) => user.bio),
-            ul(
-                li(
-                    a("View on GitHub").attr("href", (user) => user.html_url)
-                ),
-                li(
-                    a("Open blog").attr("href", (user) => user.blog)
-                )
-            )
-        ).whenLoading(
+	div(
+		h1("Repository Information"),
+		div(
+			h3((repo) => repo.full_name),
+			p((repo) => repo.description),
+			a("View on GitHub").attr("href", (repo) => repo.html_url)
+		).bind(repoData),
+		h2("Author"),
+		div(
+			img().attr("src", (user) => user.avatar_url),
+			h3((user) => `${user.name} (@${user.login})`),
+			p((user) => user.bio),
+			ul(
+				li(
+					a("View on GitHub").attr("href", (user) => user.html_url)
+				),
+				li(
+					a("Open blog").attr("href", (user) => user.blog)
+				)
+			)
+		).whenLoading(
 			p("Fetching info from GitHub API, please wait...")
 		).bind(userData)
-    ).render($("#render-target")[0], { debugLogger: console.log });
+	).render("#render-target", { debugLogger: console.log });
 </script>
 </body>
 </html>

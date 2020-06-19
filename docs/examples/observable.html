@@ -1,14 +1,13 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <title>Basic - Declarativ Examples</title>
+	<title>Basic - Declarativ Examples</title>
 </head>
 <body>
 <div id="render-target"></div>
-<script type="text/javascript" src="https://unpkg.com/jquery@3.3.1/dist/jquery.min.js"></script>
 <script type="text/javascript" src="https://unpkg.com/declarativ@0.1.6/dist/declarativ.min.js"></script>
 <script>
-    const { observe, el: { div, p, button }, util } = declarativ;
+	const { observe, el: { div, p, button }, util } = declarativ;
 
 	const firstObservable = observe({ count: 1 });
 	const secondObservable = observe();
@@ -16,7 +15,7 @@
 	div(
 		p((d) => `The current count is ${d.count}.`).bind(firstObservable),
 		button("Increase Count").on("click", () => {
-			// this is only slightly contrived; values need to be referenced
+			// this is only s`lightly contrived; values need to be referenced
 			// through "data.proxy" to have an effect... not exactly ideal.
 			firstObservable.proxy.count++;
 		}),
@@ -30,7 +29,7 @@
 			// intuitive for other use cases
 			secondObservable.update({ number: Math.floor(Math.random() * 99) });
 		})
-    ).render($("#render-target")[0], { debugLogger: console.log });
+	).render("#render-target", { debugLogger: console.log });
 </script>
 </body>
 </html>

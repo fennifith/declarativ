@@ -1,43 +1,42 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <title>Basic - Declarativ Examples</title>
+	<title>Basic - Declarativ Examples</title>
 </head>
 <body>
 <div id="render-target"></div>
-<script type="text/javascript" src="https://unpkg.com/jquery@3.3.1/dist/jquery.min.js"></script>
 <script type="text/javascript" src="https://unpkg.com/declarativ@0.1.6/dist/declarativ.min.js"></script>
 <script>
-    const { wrapCompose, compose, renderElement, el: { div, h1, h2, p, a, hr, article }, util } = declarativ;
+	const { wrapCompose, compose, renderElement, el: { div, h1, h2, p, a, hr, article }, util } = declarativ;
 
-    function blogPost(title, body) {
-        return article(
-            h2(title),
-            p(body)
-        );
+	function blogPost(title, body) {
+		return article(
+			h2(title),
+			p(body)
+		);
 	}
 	
 	// .compose creates a component from an html string template
 	const center = compose((inner) => `<center>${inner}</center>`);
 
 	// .wrapCompose wraps an existing declarativ component as a function
-    const bigHeader = wrapCompose(h1().attr("style", "font-size: 3em;"));
+	const bigHeader = wrapCompose(h1().attr("style", "font-size: 3em;"));
 	
 	div(
-        center(
-            bigHeader("My Blog!"),
-            p("This is my blog, where I post my blog posts.")
-        ),
-        hr(),
-        blogPost(
-            "Why Cream Tea is far superior to a Tea Sandwich",
-            [
-                "The cream. I just love the cream. I can't live without it. It consumes me. ",
-                a("Look at this cream.").attr("href", "https://en.wikipedia.org/wiki/Cream_tea#/media/File:Cornish_cream_tea_2.jpg")
+		center(
+			bigHeader("My Blog!"),
+			p("This is my blog, where I post my blog posts.")
+		),
+		hr(),
+		blogPost(
+			"Why Cream Tea is far superior to a Tea Sandwich",
+			[
+				"The cream. I just love the cream. I can't live without it. It consumes me. ",
+				a("Look at this cream.").attr("href", "https://en.wikipedia.org/wiki/Cream_tea#/media/File:Cornish_cream_tea_2.jpg")
 			]
 		),
 		util.html("&amp;") // the "html" util creates a component from an unescaped HTML string
-    ).render($("#render-target")[0], { debugLogger: console.log });
+	).render("#render-target", { debugLogger: console.log });
 </script>
 </body>
 </html>
