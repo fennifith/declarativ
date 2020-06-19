@@ -168,7 +168,64 @@ class StringElementImpl extends ElementImpl<string> {
 }
 
 /**
- * Implementation for plain HTML elements.
+ * Implementation for HTML nodes.
+ *
+ * @class HTMLNodeImpl
+ */
+class HTMLNodeImpl extends ElementImpl<Node> {
+
+    constructor(element: Node) {
+        super(element);
+    }
+
+    setAttr(name: string, value: string) {
+        throw "No .setAttr implementation!";
+    }
+
+    getAttr(name: string) : string | null {
+        throw "No .getAttr implementation!";
+    }
+
+    on(event: string, callback: (e: Event) => void) {
+        this.element.addEventListener(event, callback);
+    }
+
+    insertBefore(other: Node, ref: Node) {
+        this.element.insertBefore(other, ref);
+	}
+	
+	insertAfter(other: Node, ref: Node) {
+		if (ref.nextSibling)
+			this.insertBefore(other, ref.nextSibling)
+		else this.appendChild(other);
+    }
+
+    remove() {
+        throw "No .remove implementation!";
+    }
+
+    replaceWith(other: Node, parent: Node) {
+        if (parent)
+            parent.replaceChild(other, this.element);
+        else throw "Cannot replace element; no parent defined.";
+    }
+
+    find(selector: string): Node | null {
+		return null;
+    }
+
+    appendChild(child: Node) {
+        this.element.appendChild(child);
+    }
+
+    empty() {
+        while (this.element.firstChild)
+            this.element.removeChild(this.element.firstChild);
+    }
+}
+
+/**
+ * Implementation for HTML elements.
  *
  * @class HTMLElementImpl
  */
@@ -237,9 +294,9 @@ export async function getAnimationFrame() {
  * Creates a new HTML element.
  *
  * @param html              The HTML string to parse.
- * @returns {HTMLElement}     The root element of the created HTML.
+ * @returns {Node[]}        The root elements of the created HTML.
  */
-export function createHtml(html: string) {
+export function createHtml(html: string) : Node[] {
     let template = document.createElement('template');
 	template.innerHTML = html.trim ? html.trim() : html;
 
@@ -277,8 +334,13 @@ export function element<T>(e: T) : ElementImpl<any> | null {
     else if (typeof e === "string")
         return new StringElementImpl(`${e}`);
     else if (e instanceof HTMLElement)
-        return new HTMLElementImpl(e);
+		return new HTMLElementImpl(e);
+	else if (e instanceof Node)
+		return new HTMLNodeImpl(e);
 	else if (e === null || typeof e === 'undefined')
 		return null;
-	else throw "Cannot implement element " + e;
+	else {
+		console.log(e);
+		throw `dom-wrapper: Cannot implement element "${Object.getPrototypeOf(e).constructor.name}" ${e}.`;
+	}
 }

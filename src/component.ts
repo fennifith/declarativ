@@ -1,14 +1,14 @@
 import 'ts-polyfill/lib/es2019-array';
 
-import { ResolvableValue, DataResolvable, DataObservable, PendingTasks, resolvable, resolve } from './util/resolvable';
+import { ResolvableValue, DataResolvable, PendingTasks, resolvable, resolve } from './util/resolvable';
 import { ElementImpl } from './util/dom-wrapper';
 import { escapeHtml } from './util/html';
 import { DOMRender } from './render/dom-render';
 import { StringRender } from './render/string-render';
 import { RenderOpts } from './render/render';
 
-export type Node = Component | string
-export type ResolvableNode = ResolvableValue<Node | ResolvableNode[]>
+export type ComponentNode = Component | string
+export type ResolvableNode = ResolvableValue<ComponentNode | ResolvableNode[]>
 
 export type Element = HTMLElement | string
 
@@ -128,10 +128,10 @@ export class Component {
      * @param {Object} data             The resolved data.
      * @returns {Promise<Array>}
      */
-    async resolveChildren(data: any) : Promise<Node[]> {
-		let children: Node[] = [];
+    async resolveChildren(data: any) : Promise<ComponentNode[]> {
+		let children: ComponentNode[] = [];
 		
-		const pushItem = (item: Node) => {
+		const pushItem = (item: ComponentNode) => {
 			if (typeof item === 'string')
 				children.push(item);
 			else {
@@ -242,10 +242,10 @@ export class Component {
      * Render the component and its child elements on the DOM.
      *
      * @param {Object} parentData                   The (resolved) data of the parent element to inherit.
-     * @param {HTMLElement?} tempElement     The temporary element to replace upon render.
-     * @returns {Promise<HTMLElement>}
+     * @param {Node?} tempElement     The temporary element to replace upon render.
+     * @returns {Promise<Node>}
      */
-    async render(tempElement: HTMLElement, opts?: RenderOpts) : Promise<HTMLElement> {
+    async render(tempElement: Node, opts?: RenderOpts) : Promise<Node> {
 		return await (new DOMRender(opts)).render(null, tempElement, this);
     }
 }

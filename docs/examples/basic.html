@@ -6,9 +6,9 @@
 <body>
     <div id="render-target"></div>
     <script type="text/javascript" src="https://unpkg.com/jquery@3.3.1/dist/jquery.min.js"></script>
-    <script type="text/javascript" src="https://unpkg.com/declarativ@0.1.5/dist/declarativ.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/declarativ@0.1.6/dist/declarativ.min.js"></script>
     <script>
-        const { renderElement, elements: { div, p, b, br, button, hr, article } } = declarativ;
+        const { renderElement, el: { div, p, b, br, button, hr, article } } = declarativ;
 
         // lorem ipsum Promise (async example)
         let lorem = Promise.resolve([
@@ -28,7 +28,7 @@
 					text
 				))
 			))
-        ).render($("#render-target"));
+        ).render($("#render-target")[0], { debugLogger: console.log });
     </script>
 </body>
 </html>

@@ -6,9 +6,9 @@
 <body>
 <div id="render-target"></div>
 <script type="text/javascript" src="https://unpkg.com/jquery@3.3.1/dist/jquery.min.js"></script>
-<script type="text/javascript" src="https://unpkg.com/declarativ@0.1.5/dist/declarativ.js"></script>
+<script type="text/javascript" src="https://unpkg.com/declarativ@0.1.6/dist/declarativ.min.js"></script>
 <script>
-    const { wrapCompose, compose, renderElement, elements: { div, h1, h2, p, a, hr, article }, util } = declarativ;
+    const { wrapCompose, compose, renderElement, el: { div, h1, h2, p, a, hr, article }, util } = declarativ;
 
     function blogPost(title, body) {
         return article(
@@ -37,7 +37,7 @@
 			]
 		),
 		util.html("&amp;") // the "html" util creates a component from an unescaped HTML string
-    ).render($("#render-target"));
+    ).render($("#render-target")[0], { debugLogger: console.log });
 </script>
 </body>
 </html>

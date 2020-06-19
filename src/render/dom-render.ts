@@ -5,7 +5,7 @@ import { Component } from '../component';
 
 let nodeCount = 0;
 
-export class DOMRender extends Render<HTMLElement> {
+export class DOMRender extends Render<Node> {
 
 	constructor(opts?: RenderOpts) {
 		super(opts);
@@ -15,11 +15,11 @@ export class DOMRender extends Render<HTMLElement> {
 	 * Perform a recursive render... thing...
 	 * 
 	 * @param {*} data - The current data object to bind to components.
-	 * @param {HTMLElement|ElementImpl?} tempElement - The element/object that components should replace.
+	 * @param {Node|ElementImpl?} tempElement - The element/object that components should replace.
 	 * @param {Component} component - The component to start the render at.
 	 * @return {*} The rendered item.
 	 */
-	async doRender(data: any, tempElement: HTMLElement | null, component: Component) : Promise<HTMLElement> {
+	async doRender(data: any, tempElement: Node | null, component: Component) : Promise<Node> {
         // create basic html
         let innerHtml = "";
         let components: {[id: string]: Component} = {};
@@ -79,10 +79,7 @@ export class DOMRender extends Render<HTMLElement> {
 		// implementation for arrays that modifies each element in the array;
 		// `element.replace(...)` would replace the first element and remove all
 		// others, etc.
-		let ret = elements[0];
-		if (ret instanceof HTMLElement)
-			return ret;
-		else throw "Return node is not an element!";
+		return elements[0];
 	}
 
 }

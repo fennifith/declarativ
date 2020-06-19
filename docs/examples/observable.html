@@ -6,9 +6,9 @@
 <body>
 <div id="render-target"></div>
 <script type="text/javascript" src="https://unpkg.com/jquery@3.3.1/dist/jquery.min.js"></script>
-<script type="text/javascript" src="https://unpkg.com/declarativ@0.1.5/dist/declarativ.js"></script>
+<script type="text/javascript" src="https://unpkg.com/declarativ@0.1.6/dist/declarativ.min.js"></script>
 <script>
-    const { observe, elements: { div, p, button }, util } = declarativ;
+    const { observe, el: { div, p, button }, util } = declarativ;
 
 	const firstObservable = observe({ count: 1 });
 	const secondObservable = observe();
@@ -30,7 +30,7 @@
 			// intuitive for other use cases
 			secondObservable.update({ number: Math.floor(Math.random() * 99) });
 		})
-    ).render($("#render-target"));
+    ).render($("#render-target")[0], { debugLogger: console.log });
 </script>
 </body>
 </html>
