@@ -2,12 +2,16 @@ import { Component, Element } from "../component";
 import { DataObservable, resolve } from '../util/resolvable';
 
 export interface RenderOpts {
+	debugLogger?: (...data: any[]) => void
+	strict?: boolean
 }
 
 export abstract class Render<E> {
 
+	opts: RenderOpts
+
 	constructor(opts?: RenderOpts) {
-		// TODO: potential "strict" opt (don't catch errors)
+		this.opts = opts || {}
 	}
 
 	/**
@@ -17,18 +21,22 @@ export abstract class Render<E> {
 	 * @param {*} tempElement 
 	 * @param {*} component 
 	 */
-	async render(parentData: any, tempElement: E, component: Component) : Promise<E> {
+	async render(parentData: any, tempElement: E | null, component: Component) : Promise<E> {
 		try {
+			this.opts.debugLogger?.(`Rendering component ${component.template}`)
+
 			// render loading state first... (if present)
 			if (component.loadingState) {
 				tempElement = await this.render(null, tempElement, await resolve(component.loadingState));
 			}
 
 			// resolve critical data first
-			let data = component.data ? await component.data.resolve(parentData) : parentData;
+			let data = component.data ? await resolve(component.data, parentData) : parentData;
+			this.opts.debugLogger?.('  Resolved data:', data);
 
 			// perform actual render
 			let element = await this.doRender(data, tempElement, component);
+			this.opts.debugLogger?.('  Finished render:', element);
 
 			if (component.data instanceof DataObservable) {
 				// subscribe to observable changes
@@ -54,6 +62,6 @@ export abstract class Render<E> {
 	 * @param {Component} component - The component to start the render at.
 	 * @return {*} The rendered item.
 	 */
-	abstract async doRender(parentData: any, tempElement: E, component: Component) : Promise<E>
+	abstract async doRender(parentData: any, tempElement: E | null, component: Component) : Promise<E>
 
 }

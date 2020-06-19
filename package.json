@@ -13,7 +13,7 @@
     "types/*"
   ],
   "scripts": {
-    "test": "mocha -r ts-node/register src/**/*.test.ts"
+    "test": "env TS_NODE_PROJECT=\"tsconfig.test.json\" mocha -r ts-node/register src/*.test.ts src/**/*.test.ts"
   },
   "repository": {
     "type": "git",
@@ -26,12 +26,12 @@
   },
   "homepage": "https://github.com/fennifith/declarativ#readme",
   "dependencies": {
-    "jquery": "^3.4.1",
     "ts-polyfill": "^3.8.2"
   },
   "devDependencies": {
     "@types/chai": "^4.2.11",
     "@types/mocha": "^7.0.2",
+    "bundle-dts-webpack-plugin": "^1.1.0",
     "chai": "^4.2.0",
     "mocha": "^6.2.0",
     "ts-loader": "^7.0.5",
@@ -39,6 +39,7 @@
     "ts-node": "^8.10.2",
     "typescript": "^3.9.5",
     "webpack": "^4.43.0",
-    "webpack-cli": "^3.3.7"
+    "webpack-cli": "^3.3.7",
+    "webpack-node-externals": "^1.7.2"
   }
 }

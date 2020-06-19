@@ -1,4 +1,4 @@
-import { ResolvableValue, DataResolvable, DataObservable, PendingTasks, resolvable } from './util/resolvable';
+import { ResolvableValue, DataResolvable, DataObservable, PendingTasks, resolvable, resolve } from './util/resolvable';
 import { ElementImpl } from './util/dom-wrapper';
 import { escapeHtml } from './util/html';
 import { DOMRender } from './render/dom-render';
@@ -10,7 +10,7 @@ export type ResolvableNode = ResolvableValue<Node | ResolvableNode[]>
 
 export type Element = HTMLElement | string
 
-export function node(variable: any) : Component {
+export function node(variable: any) : Component | null {
     if (variable instanceof Component)
         return variable;
     else if (typeof variable === "string") // text string
@@ -19,10 +19,12 @@ export function node(variable: any) : Component {
 		return new Component((s: any) => s, variable)
 	else if (typeof variable === "function" || variable instanceof Promise || variable instanceof DataResolvable) // wrap promised component
 		return new Component((s: any) => s, [variable])
-	else if (variable === null || typeof variable === "undefined") // null component (throw error on use)
-		return new Component(() => { throw "Null component..."; });
-    else {
+	else if (typeof variable === "undefined" || variable === null) { // null component (throw error on use)
+		console.error("declarativ: Null component: ", variable);
+		return null;
+    } else {
 		console.error("declarativ: Cannot resolve passed node: ", variable);
+		return null;
 	}
 }
 
@@ -38,10 +40,10 @@ export function node(variable: any) : Component {
 export class Component {
 
 	children: ResolvableNode[]
-	fallbackState: Component
-	loadingState: Component
+	fallbackState: Component | null
+	loadingState: Component | null
 
-	data: any
+	data: ResolvableValue<any> | null
 	template: (inner: string, data?: any) => string
 
 	tasks: PendingTasks
@@ -125,21 +127,29 @@ export class Component {
      * @returns {Promise<Array>}
      */
     async resolveChildren(data: any) : Promise<Node[]> {
-        let children = [];
+		let children: Node[] = [];
+		
+		const pushItem = (item: Node) => {
+			if (typeof item === 'string')
+				children.push(item);
+			else {
+				let n = node(item);
+				if (n) children.push(n);
+			}
+		};
 		
 		let arr = this.children.flat(Infinity);
 		for (let i = 0; i < arr.length; i++) {
-			let value = arr[i];
-			if (arr[i] instanceof DataResolvable) {
-				value = await value.resolve(data);
-			}
+			let value = await resolve(arr[i], data);
 
 			if (value instanceof Array) {
 				// flatten inner arrays (avoid creating unnecessary nodes)
 				value.flat(Infinity).forEach((item) => {
-					children.push(node(item));
+					pushItem(item);
 				});
-			} else children.push(node(value));
+			} else {
+				pushItem(value);
+			}
 		}
 
         return children;
@@ -159,7 +169,6 @@ export class Component {
 	 */
 	runAfter(fun: (e: Element, data: any) => void) : Component {
 		let node = this.clone();
-		node.tasks = this.tasks;
 		node.tasksAfter = new PendingTasks(this.tasksAfter).push(fun);
 		return node;
 	}

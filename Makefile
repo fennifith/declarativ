@@ -14,7 +14,7 @@ package-install.lock: package.json
 	touch package-install.lock
 
 build-dev: install
-	webpack-cli --config webpack.config.js
+	webpack-cli --mode=development --config webpack.config.js
 
 build: install
 	webpack-cli --mode=production --config webpack.config.js

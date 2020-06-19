@@ -4,7 +4,7 @@
  * @module util/resolvable
  */
 
-export type ResolvableValue<T> = T | ((data: any) => ResolvableValue<T>) | Promise<ResolvableValue<T>>
+export type ResolvableValue<T> = T | ((data: any) => ResolvableValue<T>) | Promise<T>
 
 /**
  * A wrapper class for data-based promises and/or arbitrary
@@ -27,15 +27,19 @@ export class DataResolvable<T> {
         return this.value instanceof Promise || typeof this.value === 'function';
     }
 
-    async resolve(data?: any) {
+    async resolve(data?: any) : Promise<T> {
         // TODO: ideally, Promises/functions should resolve recursively (e.g. Promises that return a function), but this breaks the Component's forEach functionality.
         // I'm not entirely sure why this happens. Everything seems to work fine as it is, though, so I'll just leave it alone.
 
+		const isFn = (arg: any): arg is ((arg: any) => T) => {
+			return typeof arg === 'function'
+		}
+
         if (this.value instanceof Promise) {
             return await this.value;
-        } else if (typeof this.value === 'function') {
-            return this.value(data);
-        } else return this.value;
+        } else if (isFn(this.value)) {
+            return await this.value(data);
+        } else return <T> this.value;
     }
 }
 
@@ -56,7 +60,7 @@ export class DataObservable<T> extends DataResolvable<T> {
 
 	update(value: T) {
 		this.value = value;
-		this.listeners.forEach((listener) => listener(this.value));
+		this.listeners.forEach((listener) => listener(value));
 	}
 
 	subscribe(listener: (value: T) => void) {
@@ -76,20 +80,20 @@ export class DataObservable<T> extends DataResolvable<T> {
  * 
  * @class ProxyDataObservable
  */
-export class ProxyDataObservable<T> extends DataObservable<T> {
+export class ProxyDataObservable extends DataObservable<{[key: string]: any}> {
 
-	proxy: Proxy;
+	proxy: any;
 
-	constructor(value: T) {
+	constructor(value: {[key: string]: any}) {
 		super(value);
 		this.proxy = new Proxy(value || {}, {
 			set: (obj, prop, val) => {
-				this.value[prop] = val;
+				value[String(prop)] = val;
 				this.update(this.value);
 				return true;
 			},
 			deleteProperty: (obj, prop) => {
-				delete this.value[prop];
+				delete value[String(prop)];
 				this.update(this.value);
 				return true;
 			}
@@ -128,10 +132,10 @@ export class PendingTasks {
 
     constructor(tasks?: PendingTasks | ((...args: any[]) => void)[]) {
         if (tasks instanceof PendingTasks)
-            this.tasks = tasks.tasks;
+            this.tasks = [...tasks.tasks];
         else if (tasks instanceof Array)
-            this.tasks = tasks;
-        else this.tasks = [];
+			this.tasks = [...tasks];
+		else this.tasks = [];
     }
 
     get length() {

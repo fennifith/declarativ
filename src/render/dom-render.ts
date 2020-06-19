@@ -19,7 +19,7 @@ export class DOMRender extends Render<HTMLElement> {
 	 * @param {Component} component - The component to start the render at.
 	 * @return {*} The rendered item.
 	 */
-	async doRender(data: any, tempElement: HTMLElement, component: Component) : Promise<HTMLElement> {
+	async doRender(data: any, tempElement: HTMLElement | null, component: Component) : Promise<HTMLElement> {
         // create basic html
         let innerHtml = "";
         let components: {[id: string]: Component} = {};
@@ -32,6 +32,8 @@ export class DOMRender extends Render<HTMLElement> {
 				components[id] = child;
 			}
 		});
+
+		this.opts.debugLogger?.("  Resolved child elements:", innerHtml);
 
         // render HTML structure
 		let elements = dom.createHtml(component.template(innerHtml, data));

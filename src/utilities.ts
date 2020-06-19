@@ -1,12 +1,10 @@
 import { node, Component, ResolvableNode } from './component';
+import { ResolvableValue, resolve } from "./util/resolvable";
 
 export function html(str: string) : Component {
 	return new Component(() => str);
 }
 
-export function forEach(...components: ResolvableNode[]) : Component {
-	let n = node(components);
-	return node(function(data: any) {
-		return Object.keys(data).map((key) => n.bind(data[key]));
-	});
+export function forEach(items: ResolvableValue<any[]>, ...components: ResolvableNode[]) : Component {
+	return node(resolve(items).then(array => array.map((item) => node(components)?.bind(item))))!!;
 }
