@@ -29,7 +29,7 @@ module.exports = (env, argv) => [
 	},
 	plugins: [
 		new DeclarationBundlerPlugin({
-			moduleName: "declarativ",
+			moduleName: "'declarativ'",
 			out: "./types.d.ts"
 		})
 	]

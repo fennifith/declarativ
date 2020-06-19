@@ -19,7 +19,7 @@ container(
 #### Script Tag
 
 ```html
-<script type="text/javascript" src="https://unpkg.com/declarativ@0.1.6/dist/declarativ.min.js"></script>
+<script type="text/javascript" src="https://unpkg.com/declarativ@0.1.7/dist/declarativ.min.js"></script>
 ```
 
 (the module will be included in the global scope as the `declarativ` variable)
