@@ -1,3 +1,5 @@
+import 'ts-polyfill/lib/es2019-array';
+
 import { ResolvableValue, DataResolvable, DataObservable, PendingTasks, resolvable, resolve } from './util/resolvable';
 import { ElementImpl } from './util/dom-wrapper';
 import { escapeHtml } from './util/html';
