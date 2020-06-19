@@ -21,12 +21,10 @@ container(
 
 ## Installation
 
-**Note:** although this library can and does use it, it _does not_ depend on jQuery. It will behave the same regardless of whether it is passed an unwrapped HTMLElement or a jQuery class. This is because of _perplexed kittens_ and [_fairy dust_](./src/util/dom-wrapper.js).
-
 #### Script Tag
 
 ```html
-<script type="text/javascript" src="https://unpkg.com/declarativ@0.1.5/dist/declarativ.js"></script>
+<script type="text/javascript" src="https://unpkg.com/declarativ@0.1.6/dist/declarativ.min.js"></script>
 ```
 
 (the module will be included in the global scope as the `declarativ` variable)
@@ -46,10 +44,10 @@ cd declarativ && make install
 
 ## Usage
 
-Most component trees can be built using the standard functions defined in `declarativ.elements`. I often use [destructuring assignment](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment) to move them to the current scope when using more than one or two of them, which makes it a bit easier to work with. Here's an example:
+Most component trees can be built using the standard functions defined in `declarativ.el`. I often use [destructuring assignment](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment) to move them to the current scope when using more than one or two of them, which makes it a bit easier to work with (provided you don't use any variables that conflict with the element names). Here's an example:
 
 ```js
-const { div, h1, p, a } = declarativ.elements;
+const { div, h1, p, a } = declarativ.el;
 
 let components = div(
   h1("This is a big header."),
@@ -61,10 +59,10 @@ let components = div(
 );
 ```
 
-After defining your component tree, it can be placed on the DOM by either calling the `render` or `renderString` functions. Calling `render` will place them inside whatever element you pass as its argument, while `renderString` simply returns their HTML representation.
+After defining your component tree, it can be placed on the DOM by either calling the `render` or `renderString` functions. Calling `render` will place them inside whatever element (or selector) you pass as its argument, while `renderString` simply returns their HTML representation.
 
 ```js
-components.render($("#content")).then(() => {
+components.render("#content").then(() => {
     console.log("Elements rendered!");
 });
 ```
